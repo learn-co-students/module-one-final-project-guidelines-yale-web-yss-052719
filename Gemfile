@@ -3,5 +3,10 @@ source "https://rubygems.org"
 
 gem "sinatra-activerecord"
 gem "sqlite3"
-gem "pry"
 gem "require_all"
+
+gem "httparty"
+
+group :development do
+gem "pry"
+end
