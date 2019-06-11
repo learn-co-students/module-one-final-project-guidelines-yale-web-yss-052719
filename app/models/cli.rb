@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 class Cli
-=======
-# require_relative "../lib/tty-prompt"
->>>>>>> 083776000ec53324965477952af0977bfe06050b
 
     PROMPT = TTY::Prompt.new
 
