@@ -10,7 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 1) do
+ActiveRecord::Schema.define(version: 3) do
+
+  create_table "favorites", force: :cascade do |t|
+    t.integer "user_id"
+    t.integer "park_id"
+    t.string  "review"
+  end
 
   create_table "parks", force: :cascade do |t|
     t.string "name"
@@ -19,6 +25,11 @@ ActiveRecord::Schema.define(version: 1) do
     t.string "operating_hours"
     t.string "entrance_fee"
     t.string "weather"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "name"
+    t.string "state"
   end
 
 end
