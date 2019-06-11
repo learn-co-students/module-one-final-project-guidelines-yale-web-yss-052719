@@ -3,6 +3,7 @@ require_relative '../config/environment.rb'
 class CLI
 
     def initialize
+
         starting_program
         menu
         
@@ -10,6 +11,27 @@ class CLI
 
  
     def starting_program
+        banner = "
+.___________..______       _______  _______     _______.
+|           ||   _  \     |   ____||   ____|   /       |
+`---|  |----`|  |_)  |    |  |__   |  |__     |   (----`
+    |  |     |      /     |   __|  |   __|     \   \    
+    |  |     |  |\  \----.|  |____ |  |____.----)   |   
+    |__|     | _| `._____||_______||_______|_______/    
+                                                        
+"
+    print banner
+        Catpix::print_image "./img/npark1.jpg",
+            :limit_x => 1.0,
+            :limit_y => 0,
+            :center_x => true,
+            :center_y => true,
+            :bg => "white",
+            :bg_fill => true,
+            :resolution => "high"
+
+
+        
         puts "Welcome user. Please enter your name here:"
         prompt = TTY::Prompt.new
 
@@ -21,6 +43,15 @@ class CLI
         @users.update(:state => @user_state)
         @users.save
     end
+
+    # Menu
+    # 1, Specific state
+    #     your state or another state
+    # 2. specific park
+    #     give us a park name
+    # 3. Update state
+    # 4. Quit
+
 
     def menu
         prompt = TTY::Prompt.new
@@ -72,21 +103,6 @@ class CLI
         end
     end
 
-    # Menu
-    # 1, Specific state
-    #     your state or another state
-    # 2. specific park
-    #     give us a park name
-    # 3. Update state
-    # 4. Quit
-
-
-    # def printgenericparks
-    #     puts "Here are all the park selections below"
-    #     Park.all
-    # end
-
-
 
     def findbystate
         prompt = TTY::Prompt.new
@@ -100,6 +116,7 @@ class CLI
             my_park.each do |park|
                 puts park.name
             end
+            menu
 
         else
             state = prompt.ask('What state?')
@@ -107,6 +124,7 @@ class CLI
             not_park.each do |park|
                 puts park.name
             end
+            menu
 
         end
 
@@ -119,7 +137,7 @@ class CLI
         user_park = Park.find_by name: temp
         #format prettier
         puts user_park.name, user_park.state, user_park.description, user_park.operating_hours, user_park.entrance_fee, user_park.weather
-
+        menu
     end
 
 
@@ -179,3 +197,9 @@ end
 #         Favorite.new(@user_name, @user_park_temp)
 #     end
 # end
+
+
+    # def printgenericparks
+    #     puts "Here are all the park selections below"
+    #     Park.all
+    # end

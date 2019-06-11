@@ -7,6 +7,9 @@ gem "require_all"
 
 gem "httparty"
 gem 'tty-prompt'
+gem 'rmagick'
+gem 'catpix'
+
 
 group :development do
 gem "pry"
