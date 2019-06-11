@@ -1,3 +1,5 @@
+require_relative "../lib/tty-prompt"
+
 PROMPT = TTY::Prompt.new
 
 class Prompt
