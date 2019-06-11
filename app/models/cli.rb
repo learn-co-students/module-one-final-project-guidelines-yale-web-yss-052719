@@ -1,4 +1,4 @@
-require_relative "../lib/tty-prompt"
+# require_relative "../lib/tty-prompt"
 
 PROMPT = TTY::Prompt.new
 
