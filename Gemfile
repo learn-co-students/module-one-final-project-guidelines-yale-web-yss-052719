@@ -6,6 +6,7 @@ gem "sqlite3"
 gem "require_all"
 
 gem "httparty"
+gem 'tty-prompt'
 
 group :development do
 gem "pry"
