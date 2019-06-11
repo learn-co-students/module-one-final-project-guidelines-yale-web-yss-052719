@@ -1,12 +1,14 @@
-require_relative "../lib/tty-prompt"
+class Cli
 
-PROMPT = TTY::Prompt.new
-
-class Prompt
+    PROMPT = TTY::Prompt.new
 
     def initialize
-        prompt.ask('What is your name?', default: ENV['USER'])
+        starting_method
     end
 
+
+    def starting_method
+        PROMPT.ask('What is your name?', default: ENV['USER'])
+    end
 end
 
