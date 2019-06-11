@@ -4,8 +4,8 @@ class CLI
 
     def initialize
         starting_program
-        userinput
-        options
+        menu
+        
         
         
     end
@@ -16,15 +16,46 @@ class CLI
         prompt = TTY::Prompt.new
 
         @user_name = prompt.ask('What is your name?', default: ENV['USER'])
-        # user = User.new(:name => @user_name)
-        # user.save
+        users = User.create(:name => @user_name, :state => nil)
+        users.save
         puts "Hello, #{@user_name}!"
-        @user_state = prompt.ask('Which state are you from?', default: ENV['USER'])
-        # user.(:state => @user_state)
-        # user.save
+        @user_state = prompt.ask('Which state are you from?', default: 'CT')
+        users.update(:state => @user_state)
+        users.save
     end
 
-    
+    def menu
+        prompt = TTY::Prompt.new
+        num = prompt.select("Please choose from one of the options below:") do |menu|
+            menu.default 4
+
+            menu.choice 'See all national parks from a state?', 1
+            menu.choice 'See information about a specific park?', 2
+            menu.choice 'Update state information for user', 3
+            menu.choice 'Quit Application', 4
+        end
+
+        case num
+        when 1
+            #function for narrow down state
+            preferences
+        when 2 
+            #function for specific park
+        when 3 
+            #function to update state info
+        when 4
+            abort
+        end
+
+    end
+
+    # Menu
+    # 1, Specific state
+    #     your state or another state
+    # 2. specific park
+    #     give us a park name
+    # 3. Update state
+    # 4. Quit
 
 
     # def printgenericparks
@@ -33,13 +64,15 @@ class CLI
     # end
 
     def options
-        if prompt.yes?('Do you want a more specific search?').UPPERCASE == y.UPPERCASE
+        if prompt.yes?('Do you want a more specific search?').UPPERCASE == Y
             spec_list = []
             Park.find_each do |park|
                 if park.state == @user_state
-                    spec_list << park.state
+                    spec_list << park.name
                 end
             end
+            spec_list
+            
         else
             puts "do you want to find a specific park?"
             if gets.chomp == true
