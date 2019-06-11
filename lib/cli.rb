@@ -102,8 +102,6 @@ class CLI
         @weather = gets.chomp
     end
 
-
-
     def findbyname
             puts "Which park do you want?"
             @user_park_temp = gets.chomp 
@@ -113,6 +111,22 @@ class CLI
         if gets.chomp == true
             Favorite.new(@user_name, @user_park_temp)
         end
+    end
+
+    def findbystate
+        prompt = TTY::Prompt.new
+        choice = prompt.select("Where would you like to find national parks from?") do |menu|
+            menu.choice 'My Home State!'
+            menu.choice 'Another State'
+        end
+        
+        if choice == 'My Home State!'
+            Park.find_by state: @user_state
+        else
+            state = prompt.ask('What state?')
+            Park.find_by state: state
+        end
+
     end
 
 
