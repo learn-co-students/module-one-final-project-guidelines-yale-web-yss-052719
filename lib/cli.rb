@@ -3,10 +3,8 @@ require_relative '../config/environment.rb'
 class CLI
 
     def initialize
-
         starting_program
-        menu
-        
+        menu 
     end
 
  
@@ -80,29 +78,6 @@ class CLI
 
     end
 
-    def updateuser
-        prompt = TTY::Prompt.new
-        num = prompt.select("What would you like to update?") do |menu|
-            menu.choice 'My username', 1
-            menu.choice 'My Home State', 2
-        end
-
-        case num
-        when 1
-            temp = prompt.ask("What would you like to update your username to?")
-            @users.update(name: temp)
-            @users.save
-            puts "Username updated to: #{@users.name}"
-            menu
-        when 2
-            temp1 = prompt.ask("What would you like to update your home state to?")
-            @users.update(name: temp1)
-            @users.save
-            puts "HomeState updated to: #{@users.state}"
-            menu
-        end
-    end
-
 
     def findbystate
         prompt = TTY::Prompt.new
@@ -140,6 +115,28 @@ class CLI
         menu
     end
 
+    def updateuser
+        prompt = TTY::Prompt.new
+        num = prompt.select("What would you like to update?") do |menu|
+            menu.choice 'My username', 1
+            menu.choice 'My Home State', 2
+        end
+
+        case num
+        when 1
+            temp = prompt.ask("What would you like to update your username to?")
+            @users.update(name: temp)
+            @users.save
+            puts "Username updated to: #{@users.name}"
+            menu
+        when 2
+            temp1 = prompt.ask("What would you like to update your home state to?")
+            @users.update(name: temp1)
+            @users.save
+            puts "HomeState updated to: #{@users.state}"
+            menu
+        end
+    end
 
 end
 
