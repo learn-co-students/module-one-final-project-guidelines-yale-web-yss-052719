@@ -3,5 +3,5 @@ require 'pry'
 
 start
 binding.pry
-User.destroy_all
+
 puts "HELLO WORLD"
