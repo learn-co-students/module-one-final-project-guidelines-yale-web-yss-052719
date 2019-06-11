@@ -10,29 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 4) do
+ActiveRecord::Schema.define(version: 5) do
 
   create_table "applications", force: :cascade do |t|
     t.integer "student_id"
     t.integer "college_id"
+    t.string "type"
   end
 
   create_table "colleges", force: :cascade do |t|
     t.integer "school_id"
-    t.string  "name"
-    t.string  "city"
-    t.string  "state"
-    t.string  "url"
-    t.float   "admission_rate_overall_2017"
-    t.float   "sat_scores_average_overall_2017"
-    t.float   "act_scores_average_cumulative_2013"
+    t.string "name"
+    t.string "city"
+    t.string "state"
+    t.string "url"
+    t.float "admission_rate_overall_2017"
+    t.float "sat_scores_average_overall_2017"
+    t.float "act_scores_average_cumulative_2013"
   end
 
   create_table "students", force: :cascade do |t|
-    t.string  "first_name"
-    t.string  "last_name"
+    t.string "first_name"
+    t.string "last_name"
     t.integer "grade"
-    t.string  "high_school"
+    t.string "high_school"
     t.integer "grad_year"
   end
 
