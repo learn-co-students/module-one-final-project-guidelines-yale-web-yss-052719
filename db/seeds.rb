@@ -18,5 +18,5 @@ json["data"].each do |park|
 		weather: park["weatherInfo"])
 end
 
-binding.pry
+# binding.pry
 

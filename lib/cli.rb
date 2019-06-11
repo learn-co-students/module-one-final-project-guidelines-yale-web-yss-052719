@@ -6,8 +6,6 @@ class CLI
         starting_program
         menu
         
-        
-        
     end
 
  
@@ -16,12 +14,12 @@ class CLI
         prompt = TTY::Prompt.new
 
         @user_name = prompt.ask('What is your name?', default: ENV['USER'])
-        users = User.create(:name => @user_name, :state => nil)
-        users.save
+        @users = User.create(:name => @user_name, :state => nil)
+        @users.save
         puts "Hello, #{@user_name}!"
         @user_state = prompt.ask('Which state are you from?', default: 'CT')
-        users.update(:state => @user_state)
-        users.save
+        @users.update(:state => @user_state)
+        @users.save
     end
 
     def menu
@@ -38,15 +36,40 @@ class CLI
         case num
         when 1
             #function for narrow down state
-            preferences
+            findbystate
         when 2 
             #function for specific park
+            findapark
         when 3 
             #function to update state info
+            updateuser
         when 4
             abort
         end
 
+    end
+
+    def updateuser
+        prompt = TTY::Prompt.new
+        num = prompt.select("What would you like to update?") do |menu|
+            menu.choice 'My username', 1
+            menu.choice 'My Home State', 2
+        end
+
+        case num
+        when 1
+            temp = prompt.ask("What would you like to update your username to?")
+            @users.update(name: temp)
+            @users.save
+            puts "Username updated to: #{@users.name}"
+            menu
+        when 2
+            temp1 = prompt.ask("What would you like to update your home state to?")
+            @users.update(name: temp1)
+            @users.save
+            puts "HomeState updated to: #{@users.state}"
+            menu
+        end
     end
 
     # Menu
@@ -63,55 +86,7 @@ class CLI
     #     Park.all
     # end
 
-    def options
-        if prompt.yes?('Do you want a more specific search?').UPPERCASE == Y
-            spec_list = []
-            Park.find_each do |park|
-                if park.state == @user_state
-                    spec_list << park.name
-                end
-            end
-            spec_list
-            
-        else
-            puts "do you want to find a specific park?"
-            if gets.chomp == true
-                findbyname
-                puts "do you want to favorite it?"
-                if gets.chomp == true
-                    user_fav
-                end
-            end
-        end
 
-            puts "do you want to update preferences?"
-            if gets.chomp == true
-                #needs a update to userpreferences
-            end
-        
-    end
-
-
-    def preferences
-        puts "Will now take in preferences"
-        puts "Please input a desired state code:"
-        @state_code = gets.chomp # temporary
-        puts "Lower than certain fee"
-        @entrance_fee = gets.chomp #temp
-        puts "Desired weather conditions"
-        @weather = gets.chomp
-    end
-
-    def findbyname
-            puts "Which park do you want?"
-            @user_park_temp = gets.chomp 
-    end
-
-    def user_fav 
-        if gets.chomp == true
-            Favorite.new(@user_name, @user_park_temp)
-        end
-    end
 
     def findbystate
         prompt = TTY::Prompt.new
@@ -121,13 +96,86 @@ class CLI
         end
         
         if choice == 'My Home State!'
-            Park.find_by state: @user_state
+            my_park = Park.where state: @user_state
+            my_park.each do |park|
+                puts park.name
+            end
+
         else
             state = prompt.ask('What state?')
-            Park.find_by state: state
+            not_park = Park.where state: state
+            not_park.each do |park|
+                puts park.name
+            end
+
         end
 
     end
 
 
+    def findapark
+        prompt = TTY::Prompt.new
+        temp = prompt.ask("Which park do you want to learn about?", required: true)
+        user_park = Park.find_by name: temp
+        #format prettier
+        puts user_park.name, user_park.state, user_park.description, user_park.operating_hours, user_park.entrance_fee, user_park.weather
+
+    end
+
+
 end
+
+
+
+
+
+
+# def options
+#     if prompt.yes?('Do you want a more specific search?').UPPERCASE == Y
+#         spec_list = []
+#         Park.find_each do |park|
+#             if park.state == @user_state
+#                 spec_list << park.name
+#             end
+#         end
+#         spec_list
+        
+#     else
+#         puts "do you want to find a specific park?"
+#         if gets.chomp == true
+#             findbyname
+#             puts "do you want to favorite it?"
+#             if gets.chomp == true
+#                 user_fav
+#             end
+#         end
+#     end
+
+#         puts "do you want to update preferences?"
+#         if gets.chomp == true
+#             #needs a update to userpreferences
+#         end
+    
+# end
+
+
+# def preferences
+#     puts "Will now take in preferences"
+#     puts "Please input a desired state code:"
+#     @state_code = gets.chomp # temporary
+#     puts "Lower than certain fee"
+#     @entrance_fee = gets.chomp #temp
+#     puts "Desired weather conditions"
+#     @weather = gets.chomp
+# end
+
+# def findbyname
+#         puts "Which park do you want?"
+#         @user_park_temp = gets.chomp 
+# end
+
+# def user_fav 
+#     if gets.chomp == true
+#         Favorite.new(@user_name, @user_park_temp)
+#     end
+# end
