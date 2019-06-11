@@ -3,11 +3,16 @@ require_relative '../config/environment.rb'
 class CLI
 
     def initialize
+        clean_screen
         starting_program
         menu 
     end
 
  
+    def clean_screen
+        system "clear"
+    end
+
     def starting_program
         banner = "
 .___________..______       _______  _______     _______.
@@ -29,7 +34,6 @@ class CLI
             :resolution => "high"
 
 
-        
         puts "Welcome user. Please enter your name here:"
         prompt = TTY::Prompt.new
 
@@ -49,7 +53,6 @@ class CLI
     #     give us a park name
     # 3. Update state
     # 4. Quit
-
 
     def menu
         prompt = TTY::Prompt.new
