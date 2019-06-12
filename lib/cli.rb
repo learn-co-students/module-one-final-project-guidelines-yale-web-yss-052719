@@ -85,74 +85,12 @@ class CLI
 
     end
 
-    def user_fav
-
-        @users.favorites.map do |fav|
-            puts "#{fav.park.name}"
-        end
-        menu
-    end
-
-    #Function to handle creation of favorites
-    def favorite(park)
-        prompt = TTY::Prompt.new
-        fav = prompt.yes?('Would you like to favorite this park?')
-
-        if fav
-            Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
-            prompt.ok("'#{park.name}' was added to your favorites")
-            menu
-        else
-            menu
-        end
-        
-        #create separate function to show favorites and give option to write a review
-
-        # @Favorite = Favorite.create(:user_id => 1, :park_id => temp_parkid, :review => "")
-        # rev = prompt.ask('Please write a review for the park')
-        # @Favorite.update(:review => rev)
-        # @Favorite.save
-    end
-
     def statename(string)
         State.all.each do |state|
             if string == state.abb || string == state.state
                 return state.abb
             end
         end
-    end
-
-    def findbystate
-
-        choice = @prompt.select("Where would you like to find national parks from?") do |menu|
-            menu.choice 'My Home State!'
-            menu.choice 'Another State.'
-        end
-        
-
-        if choice == 'My Home State!'
-            listParks(@users.state)
-
-        else
-            state = @prompt.ask('What state?')
-            listParks(statename(state))
-        end
-
-    end
-
-
-
-    def findapark
-        # prompt = TTY::Prompt.new
-        temp = @prompt.ask("Which park do you want to learn about?", required: true)
-
-        if Park.all.find { |park| park.name == temp} == nil
-            puts "Please input an actual park"
-        else
-            listInfo(temp)
-        end
-
-        menu
     end
 
     def listInfo(park)
@@ -189,6 +127,68 @@ class CLI
             end
         end
     end
+
+    def user_fav
+        if @users.favorites[0] == nil
+            puts "There are no saved favorites."
+            menu
+        else
+            @users.favorites.map do |fav|
+                puts "#{fav.park.name}"
+            end
+            menu
+        end
+    end
+
+    #Function to handle creation of favorites
+    def favorite(park)
+        prompt = TTY::Prompt.new
+        fav = prompt.yes?('Would you like to favorite this park?')
+
+        if fav
+            Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
+            prompt.ok("'#{park.name}' was added to your favorites")
+            menu
+        else
+            menu
+        end
+    end
+
+
+    def findbystate
+
+        choice = @prompt.select("Where would you like to find national parks from?") do |menu|
+            menu.choice 'My Home State!'
+            menu.choice 'Another State.'
+        end
+        
+
+        if choice == 'My Home State!'
+            listParks(@users.state)
+
+        else
+            state = @prompt.ask('What state?')
+            listParks(statename(state))
+        end
+
+    end
+
+
+
+    def findapark
+        # prompt = TTY::Prompt.new
+        temp = @prompt.ask("Which park do you want to learn about?", required: true)
+
+        if Park.all.find { |park| park.name == temp} == nil
+            puts "Please input an actual park"
+        else
+            listInfo(temp)
+        end
+
+        menu
+    end
+
+
 
 
     def updateuser
