@@ -2,8 +2,8 @@ class Student < ActiveRecord::Base
     has_many :applications
     has_many :colleges, through: :applications
 
-    validates :first_name, :presence => true
-    validates :last_name, :presence => true
+    # validates :first_name, :presence => true
+    # validates :last_name, :presence => true
 
     def create_application_by_name(college_name)
         college = College.find_by(name: college_name)
