@@ -3,9 +3,11 @@ require_relative '../config/environment.rb'
 class CLI
 
     def initialize
-        clean_screen
-        starting_program
-        menu 
+        # clean_screen
+        # starting_program
+        # menu 
+
+        statename("Hawaii")
 
     end
 
@@ -82,15 +84,25 @@ class CLI
 
     end
 
+    def statename(string)
+
+        State.all.each do |state|
+            if string == state.abb || string == state.state
+                return state.abb
+            end
+        end
+    end
+
+
     def favorite 
-        prompt = TTY::Prompt.new
+        # prompt = TTY::Prompt.new
         temp_parkid = 0
         Park.all.each do |park|
             park.name == "Lincoln Memorial" # add acquired prompt
             temp_parkid = park.id
         end
         @Favorite = Favorite.create(:user_id => 1, :park_id => temp_parkid, :review => "")
-        rev = prompt.ask('Please write a review for the park')
+        rev = @prompt.ask('Please write a review for the park')
         @Favorite.update(:review => rev)
         @Favorite.save
 
