@@ -35,7 +35,9 @@ class Cli
         elsif @main_menu == 3
             see_applications
         elsif @main_menu == 4
-            see_info
+            see_info_student
+        elsif @main_menu == 7
+            look_up_a_college
         elsif @main_menu == 5
             update_info
         elsif @main_menu == 6
@@ -49,6 +51,8 @@ class Cli
         elsif @college_menu == 2
             look_up_students_by
         elsif @college_menu == 3
+            see_info_college
+        elsif @college_menu == 4
             log_out
         end
     end
@@ -91,6 +95,7 @@ class Cli
     end
 
     def create_username
+        ## we need to create option for colleges to create username
         username = PROMPT.ask('Please create a unique username. We recommend a combination of letters and numbers!', required: true)
         # binding.pry
         if Student.find_by(username: username)
@@ -105,23 +110,21 @@ class Cli
     end
 
     def log_in
-        ## currently if someone says they're in college, than it pushes them through to main_menu_college. I need to fix this bug.
         username = PROMPT.ask('Please enter your username', required: true)
-        if @s_o_c == 1
+        if @s_o_c == 1 && Student.find_by(username: username)
             @student = Student.find_by(username: username)
             main_menu_student
-        elsif @s_o_c == -1
+        elsif @s_o_c == -1 && College.find_by(username: username)
             @college = College.find_by(username: username)
             main_menu_college
+        else
+            puts "That is not a valid username. Try again."
+            log_in
         end
-        
-
-        ## put username into database
-        ## get find and insert into self
-        ## if name does not exist in username returns to beginning of method
     end
 
     def enter_info
+        ## ADD: Defensive Coding -- require different data types for each PROMPT
         first_name = PROMPT.ask('Please enter your first name', required: true)
         last_name = PROMPT.ask('Please enter your last name', required: true)
         high_school = PROMPT.ask('Please enter your high school', required: true)
@@ -130,8 +133,7 @@ class Cli
         act_score = PROMPT.ask('Please enter your predicted or real ACT score', default: nil, required: true)
         sat_score = PROMPT.ask('Please enter your predicted or real SAT score', default: nil, required: true)
         @student.update(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, sat_score: sat_score)
-        ## only returns last value input (how do we store rest)
-        ## need to make ACT or SAT optional (people might not have both)
+        ## FIX: when updating (after update info), can we pick which info is updated
     end
 
     def main_menu_student
@@ -139,6 +141,7 @@ class Cli
             {name: 'Get College Recommendations', value: 1},
             {name: 'Create an Application', value: 2},
             {name: 'See Applications', value: 3},
+            {name: 'Look up a College', value: 7},
             {name: 'See Info', value: 4},
             {name: 'Update Info', value: 5},
             {name: 'Logout', value: 6}
@@ -154,42 +157,151 @@ class Cli
             {name: "Reach", value: 3}
         ]
         input = PROMPT.select("Do you want to find safety, target, or reach schools?", choices)
+
+        ## FIX: need to get info about the colleges, just returns 3 names right now
+
+        if input == 1
+            if @student.act_score
+                colleges = @student.find_safety_colleges_by_act_score
+                colleges.each do |college|
+                    puts college.name
+                end
+            elsif @student.sat_score
+                colleges = @student.find_safety_colleges_by_sat_score
+                colleges.each do |college|
+                    puts college.name
+                end
+            else
+                puts "Please enter your ACT or SAT score before using this feature."
+            end
+        elsif input == 2
+
+        elsif input == 3
+            
+        end
         @main_menu = 0
         main_menu_student
     end
 
     def create_an_application
         college = PROMPT.ask("What college do you want to apply to? (enter the school id or name)", default: ENV['USER'])
+        if college.numeric?
+            if @student.create_application_by_school_id(college)
+                puts "Application Created!"
+            else
+                puts "Not a valid school id."
+            end
+        else
+            if @student.create_application_by_name(college)
+                puts "Application Created!"
+            else
+                puts "Not a valid college name."
+            end
+        end
+
         @main_menu = 0
         main_menu_student
-        # if college == college.to_s
-        #     @student.create_application_by_name(college)
-        #     puts "Application Created!"
-        # elsif college == college.to_i
-        #     @student.create_application_by_school_id(college)
-        #     puts "Application Created!"
-        # else
-        #     puts "Not valid input."
-        # end
     end
 
     def see_applications
-        @student.applications
+        @student.applications.each do |application|
+            puts "College: #{application.college.name}"
+            puts "Designation: #{application.designation}"
+            puts "School ID: #{application.college.school_id}"
+            puts "City: #{application.college.city}"
+            puts "State: #{application.college.state}"
+            puts "URL: #{application.college.url}"
+            puts "Admissions Rate: #{application.college.admission_rate_overall_2017}"   
+            puts "Average SAT Scores: #{application.college.sat_scores_average_overall_2017}"   
+            puts "Average ACT Scores: #{application.college.act_scores_average_cumulative_2013}"   
+        end
+
         @main_menu = 0
+        
+        delete = PROMPT.yes?("Would you like to remove any applications at this time?")
+        if delete == "No"
+            main_menu_student
+        elsif delete == "Yes"
+            delete_applications
+        else
+            puts "error"
+            main_menu_student
+        end
+        ## this isn't working
+    end
+
+    def delete_applications
+        input = PROMPT.ask('Which college would you like to remove from your applications?', required: true)
+
+        ## FIX: complete this method
+
         main_menu_student
     end
 
-    def see_info
-        @student
+    def see_info_student
+        puts "First Name: #{@student.first_name}"
+        puts "Last Name: #{@student.last_name}"
+        puts "Grade: #{@student.grade}"
+        puts "High School: #{@student.high_school}"
+        puts "Grad Year: #{@student.grad_year}"
+        puts "ACT Score: #{@student.act_score}"
+        puts "SAT Score: #{@student.sat_score}"
+        puts "Username: #{@student.username}"
+        
+        @main_menu = 0
+        main_menu_student
+    end
+    
+    def look_up_a_college
+        ## FIX: add relevant code
+        input = PROMPT.ask("Enter a college's name or school id.", default: ENV['USER'])
+
+        if input.numeric?
+            if college = College.find_by(school_id: input)
+                puts "Name: #{college.name}"
+                puts "School ID: #{college.school_id}"
+                puts "City: #{college.city}"
+                puts "State: #{college.state}"
+                puts "URL: #{college.url}"
+                puts "Admissions Rate: #{college.admission_rate_overall_2017}"   
+                puts "Average SAT Scores: #{college.sat_scores_average_overall_2017}"   
+                puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}" 
+            else
+                puts "Not a valid school id."
+            end
+        else
+            if college = College.find_by(name: input)
+                puts "Name: #{college.name}"
+                puts "School ID: #{college.school_id}"
+                puts "City: #{college.city}"
+                puts "State: #{college.state}"
+                puts "URL: #{college.url}"
+                puts "Admissions Rate: #{college.admission_rate_overall_2017}"   
+                puts "Average SAT Scores: #{college.sat_scores_average_overall_2017}"   
+                puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}" 
+            else
+                puts "Not a valid college name."
+            end
+        end
+
         @main_menu = 0
         main_menu_student
     end
     
     def update_info
-        enter_info
+        choices = [
+            {name: 'Get College Recommendations', value: 1},
+            {name: 'Create an Application', value: 2},
+            {name: 'See Applications', value: 3},
+            {name: 'Look up a College', value: 7},
+            {name: 'See Info', value: 4},
+            {name: 'Update Info', value: 5},
+            {name: 'Logout', value: 6}
+          ]
+        @main_menu = PROMPT.select("What do you want to edit?", choices)
+        
         @main_menu = 0
         main_menu_student
-        ## takes you to the enter_info
     end
 
     def log_out
@@ -202,7 +314,8 @@ class Cli
         choices = [
             {name: 'Look at students interested in you?', value: 1},
             {name: 'Look up students by ___?', value: 2},
-            {name: 'Logout', value: 3}
+            {name: 'See info', value: 3},
+            {name: 'Logout', value: 4}
           ]
         @college_menu = PROMPT.select("What do you want to do today?", choices)
         college_menu_logic
@@ -244,6 +357,21 @@ class Cli
             main_menu_college
         end
 
+    end
+
+    def see_info_college
+        puts "Name: #{@college.name}"
+        puts "ID: #{@college.school_id}"
+        puts "City: #{@college.city}"
+        puts "State: #{@college.state}"
+        puts "URL: #{@college.url}"
+        puts "Admission Rate: #{@college.admission_rate_overall_2017}"
+        puts "Average SAT Scores: #{@college.sat_scores_average_overall_2017}"
+        puts "Average ACT Scores: #{@college.act_scores_average_cumulative_2013}"
+        puts "Username: #{@college.username}"
+     
+        @main_menu = 0
+        main_menu_student
     end
 
 end
