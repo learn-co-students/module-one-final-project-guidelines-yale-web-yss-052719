@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 5) do
+ActiveRecord::Schema.define(version: 6) do
 
   create_table "applications", force: :cascade do |t|
     t.integer "student_id"
@@ -35,6 +35,8 @@ ActiveRecord::Schema.define(version: 5) do
     t.integer "grade"
     t.string "high_school"
     t.integer "grad_year"
+    t.integer "act_score"
+    t.integer "sat_score"
   end
 
 end
