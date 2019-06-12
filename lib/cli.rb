@@ -91,16 +91,25 @@ class CLI
         
         if choice == 'My Home State!'
             my_park = Park.where state: @user_state
-            my_park.each do |park|
-                puts park.name
+            
+            if my_park == []
+                puts "There are no parks in your state :("
+            else
+                my_park.each do |park|
+                    puts park.name
+                end
             end
             menu
 
         else
             state = prompt.ask('What state?')
             not_park = Park.where state: state
-            not_park.each do |park|
-                puts park.name
+            if not_park == []
+                puts "There are no parks in this state :("
+            else
+                not_park.each do |park|
+                    puts park.name
+                end
             end
             menu
 
@@ -112,6 +121,9 @@ class CLI
     def findapark
         prompt = TTY::Prompt.new
         temp = prompt.ask("Which park do you want to learn about?", required: true)
+        Park.all.find do |park|
+            park.name == temp
+        end
         user_park = Park.find_by name: temp
         #format prettier
         puts user_park.name, user_park.state, user_park.description, user_park.operating_hours, user_park.entrance_fee, user_park.weather
