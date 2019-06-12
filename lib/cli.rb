@@ -4,9 +4,11 @@ require 'pry'
 class CLI
 
     def initialize
-        clean_screen
-        starting_program
-        menu 
+        # clean_screen
+        # starting_program
+        # menu 
+
+        statename("Hawaii")
 
     end
 
@@ -97,9 +99,16 @@ class CLI
         # rev = prompt.ask('Please write a review for the park')
         # @Favorite.update(:review => rev)
         # @Favorite.save
-
     end
 
+    def statename(string)
+
+        State.all.each do |state|
+            if string == state.abb || string == state.state
+                return state.abb
+            end
+        end
+    end
 
     def findbystate
 
