@@ -60,7 +60,7 @@ class CLI
 
             menu.choice 'See all national parks from a state?', 1
             menu.choice 'See information about a specific park?', 2
-            menu.choice 'Update state information for user', 3
+            menu.choice 'Update information for user', 3
             menu.choice "See saved favorites", 4
             menu.choice 'Quit Application', 5
 
@@ -101,6 +101,7 @@ class CLI
         if fav
             Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
             prompt.ok("'#{park.name}' was added to your favorites")
+            menu
         else
             menu
         end
