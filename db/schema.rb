@@ -10,12 +10,12 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 5) do
+ActiveRecord::Schema.define(version: 9) do
 
   create_table "applications", force: :cascade do |t|
     t.integer "student_id"
     t.integer "college_id"
-    t.string "type"
+    t.string "designation"
   end
 
   create_table "colleges", force: :cascade do |t|
@@ -27,6 +27,7 @@ ActiveRecord::Schema.define(version: 5) do
     t.float "admission_rate_overall_2017"
     t.float "sat_scores_average_overall_2017"
     t.float "act_scores_average_cumulative_2013"
+    t.string "username"
   end
 
   create_table "students", force: :cascade do |t|
@@ -35,6 +36,9 @@ ActiveRecord::Schema.define(version: 5) do
     t.integer "grade"
     t.string "high_school"
     t.integer "grad_year"
+    t.integer "act_score"
+    t.integer "sat_score"
+    t.string "username"
   end
 
 end
