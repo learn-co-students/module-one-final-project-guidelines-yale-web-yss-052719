@@ -1,5 +1,5 @@
 current directory: /Users/xavierruiz/module-one-final-project-guidelines-yale-web-yss-052719/vendor/cache/ruby/2.6.0/gems/sqlite3-1.4.1/ext/sqlite3
-/Users/xavierruiz/.rvm/rubies/ruby-2.6.1/bin/ruby -I /Users/xavierruiz/.rvm/rubies/ruby-2.6.1/lib/ruby/site_ruby/2.6.0 -r ./siteconf20190612-74771-glyvup.rb extconf.rb
+/Users/xavierruiz/.rvm/rubies/ruby-2.6.1/bin/ruby -I /Users/xavierruiz/.rvm/rubies/ruby-2.6.1/lib/ruby/site_ruby/2.6.0 -r ./siteconf20190612-80908-76selp.rb extconf.rb
 extconf.rb:18: warning: Insecure world writable dir /Users/xavierruiz in PATH, mode 040777
 checking for sqlite3.h... yes
 checking for pthread_create() in -lpthread... yes
@@ -61,4 +61,4 @@ linking shared-object sqlite3/sqlite3_native.bundle
 
 current directory: /Users/xavierruiz/module-one-final-project-guidelines-yale-web-yss-052719/vendor/cache/ruby/2.6.0/gems/sqlite3-1.4.1/ext/sqlite3
 make "DESTDIR=" install
-/usr/local/opt/coreutils/bin/ginstall -c -m 0755 sqlite3_native.bundle ./.gem.20190612-74771-1pye9ur/sqlite3
+/usr/local/opt/coreutils/bin/ginstall -c -m 0755 sqlite3_native.bundle ./.gem.20190612-80908-bz4lg3/sqlite3

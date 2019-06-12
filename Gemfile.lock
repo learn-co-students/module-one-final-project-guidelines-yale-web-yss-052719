@@ -84,7 +84,7 @@ DEPENDENCIES
   require_all
   rmagick (~> 2.16.0)
   sinatra-activerecord
-  sqlite3
+  sqlite3 (~> 1.4.1)
   tty-prompt
 
 BUNDLED WITH

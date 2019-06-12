@@ -1,4 +1,4 @@
-require_relative '../config/environment.rb'
+# require_relative '../config/environment.rb'
 require 'pry'
 
 class CLI
@@ -112,6 +112,14 @@ class CLI
             
 
         if parkList == []
+            Catpix::print_image "./img/pikachu.png",
+            :limit_x => 1.0,
+            :limit_y => 0,
+            :center_x => true,
+            :center_y => true,
+            :bg => "white",
+            :bg_fill => true,
+            :resolution => "high"
             puts "There are no parks in this state :("
             menu
         else
