@@ -2,6 +2,13 @@ def clear_screen
     system "clear"
 end
 
+def create_list(name)
+    list = List.new
+    list.name = name
+    list.user_id = $user.id
+    list.save
+end
+
 def start
     clear_screen
     prompt = TTY::Prompt.new
@@ -60,6 +67,7 @@ def login_user
     end
 end
 
+
 def profile
     puts "***** My profile *****
     username: #{$user.username}
@@ -67,7 +75,6 @@ def profile
     favourite_book: #{$user.favourite_book}
     list(s): #{$user.lists.map {|list| list.name}}
     "
-    next_step
 end
 
 def list(books)
@@ -82,17 +89,18 @@ def search_book
         menu.enum '.'
         menu.choice 'Author name', -> do
             input = prompt.ask('Enter author name: ', required: true)
-            # find_by(author_name)
             if Book.all.map {|book| book.author_name}.include?("#{input}")
                 clear_screen
-                # books = Book.all.find_by(author_name: "#{input}")
-                puts "We have found the following book(s):
-                #{Book.all.find_by(author_name: "#{input}").book_title}"
+                books = []
+                books << Book.all.find_by(author_name: "#{input}")
+                puts "We have found the following book(s):"
+                list(books)
                 store_book
             else
                 puts "Sorry, we found no matching results"
                 no_login_next_step
             end
+            # find_by(author_name)
         end
 
         menu.choice 'Author genre', -> do
@@ -117,27 +125,54 @@ def search_book
 end
 
 # def find_by(column_name)
-#     if Book.all.map {|book| book.book_title}.include?("#{input}")
+#     if Book.all.map {|book| book.column_name}.include?("#{input}")
 #         clear_screen
-#         puts "We have found the following book(s):
-#         #{Book.all.find_by(column_name: "#{input}").book_title}"
+#         books = []
+#         books << Book.all.find_by(column_name: "#{input}")
+#         puts "We have found the following book(s):"
+#         list(books)
 #         store_book
 #     else
 #         puts "Sorry, we found no matching results"
-#         
+#         no_login_next_step
 #     end
 # end
 
+def select_book
+    prompt = TTY::Prompt.new
+    input = prompt.ask('Please select a book by entering the book name.', required: true)
+    $book = Book.all.find_by(book_title: "#{input}")
+    puts "Book information:"
+    $book
+end
+
 def store_book
     prompt = TTY::Prompt.new
-    input = prompt.ask("Please enter the book name.")
-
+    select_book
     input = prompt.select("Would you like to store the book to your your list?", required: true) do |menu|
         menu.choice 'Yes', -> do
             login_user
-            input = prompt.ask("Please enter a list name. ")
-            if $user.lists_names.include?("#{input}")
-                add_book_to_list(book)
+            if $user.lists == []
+                input = prompt.ask("You don't have any lists. Please create a new list. Enter the name of your new list: ") 
+                create_list("#{input}")
+                add_book_to_list($book, "#{input}")
+            else input = prompt.ask("Please enter a list name. ")
+                if $user.lists_names.include?("#{input}")
+                    add_book_to_list($book, "#{input}")
+                    puts "Your book #{$book} is successfully stored in your list #{input}."
+                else
+                    puts input = prompt.select("The list you entered doesn't seem to exist. Would you like to create one?") do |menu|
+                        menu.choice 'Yes', -> do
+                            input = prompt.ask("Enter the name for your list: ", required: true)
+                            $user.create_list(input)
+                            add_book_to_list($book, "#{input}")
+                            puts "Your book is successfully stored in your list #{input}."
+                        end
+                        menu.choice 'No', -> do 
+                            next_step
+                        end
+                    end
+                end
             end
         end
         menu.choice 'No', -> do
@@ -181,8 +216,8 @@ end
 
 def add_book_to_list(bookname, listname)
     list_book = ListBook.new
-    list_book.book_id = Book.find_by(book_title: "#{bookname}").id
-    list_book.list_id = List.find_by(name: "#{listname}").id
+    list_book.book = $book
+    list_book.list = List.find_by(name: "#{listname}")
     list_book.save
 end
 

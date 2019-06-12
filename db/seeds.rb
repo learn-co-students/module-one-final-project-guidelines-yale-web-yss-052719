@@ -2,13 +2,18 @@ require 'csv'
 require './config/environment.rb'
 
 
-# user1 = User.new(username:"user")
-# list1 = List.new(name:"list1", user_id:user1.id)
+
 
 path = File.join(File.dirname(__FILE__), './seeds/goodreads.csv')
 puts path
 
 Book.destroy_all
+User.destroy_all
+List.destroy_all
+ListBook.destroy_all
+
+user1 = User.create(username:"user")
+list1 = List.create(name:"list1", user_id:user1.id)
 
 csv_text = File.read(path)
 csv = CSV.parse(csv_text, :headers => true, :encoding => 'ISO-8859-1')
