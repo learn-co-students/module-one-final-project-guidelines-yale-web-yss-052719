@@ -69,15 +69,19 @@ class CLI
         case num
         when 1
             #function for narrow down state
+            clean_screen
             findbystate
         when 2 
             #function for specific park
+            clean_screen
             findapark
         when 3 
             #function to update state info
+            clean_screen
             updateuser
         when 4
             #function for favorites
+            clean_screen
             user_fav
         when 5
             abort
@@ -130,6 +134,7 @@ class CLI
 
     def user_fav
         if @users.favorites[0] == nil
+            
             puts "There are no saved favorites."
             menu
         else
