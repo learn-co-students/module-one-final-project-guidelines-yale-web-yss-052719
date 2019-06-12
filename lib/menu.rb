@@ -10,8 +10,12 @@ def start
             login_user
         end
         
-        menu.choice 'Search a book', -> do
+        menu.choice 'Search for a book', -> do
             search_book
+        end
+
+        menu.choice 'Help', -> do
+            help
         end
     end
 end
@@ -19,6 +23,20 @@ end
 def quit
     puts "Bye!"
     exit
+end
+
+def help
+    puts 'Use "Login" to login to your account. Use "Search for a book" to search for a book.'
+    prompt = TTY::Prompt.new
+    option = prompt.select("Choose your option:") do |menu|
+        menu.choice 'Login',  -> do
+            login_user
+        end
+        
+        menu.choice 'Search for a book', -> do
+            search_book
+        end
+    end
 end
 
 def login_user
@@ -52,6 +70,12 @@ def profile
     next_step
 end
 
+def list(books)
+    books.each_with_index do |book, i|
+        puts "#{i+1}. #{book.book_title}"
+    end
+end
+
 def search_book
     prompt = TTY::Prompt.new
     input = prompt.select("Find by:") do |menu|
@@ -61,6 +85,7 @@ def search_book
             # find_by(author_name)
             if Book.all.map {|book| book.author_name}.include?("#{input}")
                 clear_screen
+                # books = Book.all.find_by(author_name: "#{input}")
                 puts "We have found the following book(s):
                 #{Book.all.find_by(author_name: "#{input}").book_title}"
                 store_book
@@ -105,11 +130,15 @@ end
 
 def store_book
     prompt = TTY::Prompt.new
+    input = prompt.ask("Please enter the book name.")
+
     input = prompt.select("Would you like to store the book to your your list?", required: true) do |menu|
         menu.choice 'Yes', -> do
             login_user
-            input = prompt.ask("Select list: ")
-            # need more stuff
+            input = prompt.ask("Please enter a list name. ")
+            if $user.lists_names.include?("#{input}")
+                add_book_to_list(book)
+            end
         end
         menu.choice 'No', -> do
             no_login_next_step
@@ -120,7 +149,7 @@ end
 def no_login_next_step
     prompt = TTY::Prompt.new
     input = prompt.select("What would you like to do next?", required: true) do |menu|
-        menu.choice 'Search a book', -> do
+        menu.choice 'Search for a book', -> do
             search_book
         end
         menu.choice 'Exit', -> do
@@ -140,7 +169,7 @@ def next_step
             next_step
         end
 
-        menu.choice 'Search a book', -> do
+        menu.choice 'Search for a book', -> do
             search_book
         end
 
@@ -150,6 +179,10 @@ def next_step
     end
 end
 
-def add_book_to_list(book, list)
-
+def add_book_to_list(bookname, listname)
+    list_book = ListBook.new
+    list_book.book_id = Book.find_by(book_title: "#{bookname}").id
+    list_book.list_id = List.find_by(name: "#{listname}").id
+    list_book.save
 end
+

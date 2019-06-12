@@ -15,4 +15,8 @@ class User < ActiveRecord::Base
 
     def assign_favourite_book
     end
+
+    def lists_names
+        self.lists.map {|list| list.name}
+    end
 end
