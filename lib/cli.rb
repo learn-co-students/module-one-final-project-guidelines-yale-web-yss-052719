@@ -1,4 +1,5 @@
 require_relative '../config/environment.rb'
+require 'pry'
 
 class CLI
 
@@ -24,41 +25,37 @@ class CLI
     |__|     | _| `._____||_______||_______|_______/    
                                                         
 "
-    print banner
-        Catpix::print_image "./img/npark1.jpg",
-            :limit_x => 1.0,
-            :limit_y => 0,
-            :center_x => true,
-            :center_y => true,
-            :bg => "white",
-            :bg_fill => true,
-            :resolution => "high"
+    # print banner
+    #     Catpix::print_image "./img/npark1.jpg",
+    #         :limit_x => 1.0,
+    #         :limit_y => 0,
+    #         :center_x => true,
+    #         :center_y => true,
+    #         :bg => "white",
+    #         :bg_fill => true,
+    #         :resolution => "high"
 
 
         puts "Welcome user. Please enter your name here:"
         @prompt = TTY::Prompt.new
 
+        #Create user
         @user_name = @prompt.ask('What is your name?', default: ENV['USER'])
         @users = User.create(:name => @user_name, :state => nil)
         @users.save
+
+        #Greet user
         puts "Hello, #{@user_name}!"
         @user_state = @prompt.ask('Which state are you from?', default: 'CT')
         @users.update(:state => @user_state)
         @users.save
     end
 
-    # Menu
-    # 1, Specific state
-    #     your state or another state
-    # 2. specific park
-    #     give us a park name
-    # 3. Update state
-    # 4. Quit
-
+    #Main menu
     def menu
         # prompt = TTY::Prompt.new
         num = @prompt.select("Please choose from one of the options below:") do |menu|
-            menu.default 4
+            menu.default 1
 
             menu.choice 'See all national parks from a state?', 1
             menu.choice 'See information about a specific park?', 2
@@ -82,52 +79,42 @@ class CLI
 
     end
 
-    def favorite 
+    #Function to handle creation of favorites
+    def favorite(park)
         prompt = TTY::Prompt.new
-        temp_parkid = 0
-        Park.all.each do |park|
-            park.name == "Lincoln Memorial" # add acquired prompt
-            temp_parkid = park.id
+        fav = prompt.yes?('Would you like to favorite this park?')
+
+        if fav
+            Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
+            prompt.ok("'#{park.name}' was added to your favorites")
+        else
+            menu
         end
-        @Favorite = Favorite.create(:user_id => 1, :park_id => temp_parkid, :review => "")
-        rev = prompt.ask('Please write a review for the park')
-        @Favorite.update(:review => rev)
-        @Favorite.save
+        
+        #create separate function to show favorites and give option to write a review
+
+        # @Favorite = Favorite.create(:user_id => 1, :park_id => temp_parkid, :review => "")
+        # rev = prompt.ask('Please write a review for the park')
+        # @Favorite.update(:review => rev)
+        # @Favorite.save
 
     end
 
 
     def findbystate
-        # @prompt = TTY::Prompt.new
+
         choice = @prompt.select("Where would you like to find national parks from?") do |menu|
             menu.choice 'My Home State!'
             menu.choice 'Another State.'
         end
         
+
         if choice == 'My Home State!'
-            my_park = Park.where state: @user_state
-            
-            if my_park == []
-                puts "There are no parks in your state :("
-            else
-                my_park.each do |park|
-                    puts park.name
-                end
-            end
-            menu
+            listParks(@users.state)
 
         else
             state = @prompt.ask('What state?')
-            not_park = Park.where state: state
-            if not_park == []
-                puts "There are no parks in this state :("
-            else
-                not_park.each do |park|
-                    puts park.name
-                end
-            end
-            menu
-
+            listParks(state)
         end
 
     end
@@ -141,12 +128,45 @@ class CLI
         if Park.all.find { |park| park.name == temp} == nil
             puts "Please input an actual park"
         else
-            user_park = Park.find_by name: temp
-        #format prettier
-        puts user_park.name, user_park.state, user_park.description, user_park.operating_hours, user_park.entrance_fee, user_park.weather
+            listInfo(temp)
         end
 
         menu
+    end
+
+    def listInfo(park)
+        user_park = Park.find_by name: park
+
+        puts user_park.name, user_park.state, 
+        user_park.description, user_park.operating_hours, 
+        user_park.entrance_fee, user_park.weather
+
+        favorite(user_park)
+    end
+
+    def listParks(state)
+        parkList = Park.where state: state
+            
+
+        if parkList == []
+            puts "There are no parks in this state :("
+            menu
+        else
+            pick = @prompt.select("Select a park to find out more information:") do |menu|
+                menu.default 1
+
+                parkList.each do |park|
+                    menu.choice park.name
+                end
+                menu.choice '<- Back to main menu'
+            end
+
+            if pick == "<- Back to main menu"
+                menu
+            else
+                listInfo(pick)
+            end
+        end
     end
 
 
@@ -174,64 +194,3 @@ class CLI
     end
 
 end
-
-
-
-
-
-
-# def options
-#     if prompt.yes?('Do you want a more specific search?').UPPERCASE == Y
-#         spec_list = []
-#         Park.find_each do |park|
-#             if park.state == @user_state
-#                 spec_list << park.name
-#             end
-#         end
-#         spec_list
-        
-#     else
-#         puts "do you want to find a specific park?"
-#         if gets.chomp == true
-#             findbyname
-#             puts "do you want to favorite it?"
-#             if gets.chomp == true
-#                 user_fav
-#             end
-#         end
-#     end
-
-#         puts "do you want to update preferences?"
-#         if gets.chomp == true
-#             #needs a update to userpreferences
-#         end
-    
-# end
-
-
-# def preferences
-#     puts "Will now take in preferences"
-#     puts "Please input a desired state code:"
-#     @state_code = gets.chomp # temporary
-#     puts "Lower than certain fee"
-#     @entrance_fee = gets.chomp #temp
-#     puts "Desired weather conditions"
-#     @weather = gets.chomp
-# end
-
-# def findbyname
-#         puts "Which park do you want?"
-#         @user_park_temp = gets.chomp 
-# end
-
-# def user_fav 
-#     if gets.chomp == true
-#         Favorite.new(@user_name, @user_park_temp)
-#     end
-# end
-
-
-    # def printgenericparks
-    #     puts "Here are all the park selections below"
-    #     Park.all
-    # end
