@@ -2,55 +2,57 @@ class Student < ActiveRecord::Base
     has_many :applications
     has_many :colleges, through: :applications
 
-    validates :first_name, :presence => true
-    validates :last_name, :presence => true
+    # validates :first_name, :presence => true
+    # validates :last_name, :presence => true
 
     def create_application_by_name(college_name)
-        college = College.find_by(name: college_name)
-        if college.act_scores_average_cumulative_2013
-            if college.act_scores_average_cumulative_2013 > self.act_score
-                type = "reach"
-            elsif college.act_scores_average_cumulative_2013 + 3 < self.act_score
-                type = "safety"
+        if college = College.find_by(name: college_name)
+            if college.act_scores_average_cumulative_2013
+                if college.act_scores_average_cumulative_2013 > self.act_score
+                    type = "reach"
+                elsif college.act_scores_average_cumulative_2013 + 3 < self.act_score
+                    type = "safety"
+                else
+                    type = "target"
+                end
+            elsif college.sat_scores_average_overall_2017
+                if college.sat_scores_average_overall_2017 > self.sat_score
+                    type = "reach"
+                elsif college.sat_scores_average_overall_2017 + 3 < self.sat_score
+                    type = "safety"
+                else
+                    type = "target"
+                end
             else
-                type = "target"
+                type = "no designation"
             end
-        elsif college.sat_scores_average_overall_2017
-            if college.sat_scores_average_overall_2017 > self.sat_score
-                type = "reach"
-            elsif college.sat_scores_average_overall_2017 + 3 < self.sat_score
-                type = "safety"
-            else
-                type = "target"
-            end
-        else
-            type = "no designation"
+            Application.create(student_id: self.id, college_id: college.id, designation: type)
         end
-        Application.create(student_id: self.id, college_id: college.id, designation: type)
     end
 
     def create_application_by_school_id(school_id)
-        college = College.find_by(school_id: school_id)
-        if college.act_scores_average_cumulative_2013
-            if college.act_scores_average_cumulative_2013 > self.act_score
-                type = "reach"
-            elsif college.act_scores_average_cumulative_2013 + 3 < self.act_score
-                type = "safety"
+        if college = College.find_by(school_id: school_id)
+            if college.act_scores_average_cumulative_2013
+                if college.act_scores_average_cumulative_2013 > self.act_score
+                    type = "reach"
+                elsif college.act_scores_average_cumulative_2013 + 3 < self.act_score
+                    type = "safety"
+                else
+                    type = "target"
+                end
+            elsif college.sat_scores_average_overall_2017
+                if college.sat_scores_average_overall_2017 > self.sat_score
+                    type = "reach"
+                elsif college.sat_scores_average_overall_2017 + 3 < self.sat_score
+                    type = "safety"
+                else
+                    type = "target"
+                end
             else
-                type = "target"
+                type = "no designation"
             end
-        elsif college.sat_scores_average_overall_2017
-            if college.sat_scores_average_overall_2017 > self.sat_score
-                type = "reach"
-            elsif college.sat_scores_average_overall_2017 + 3 < self.sat_score
-                type = "safety"
-            else
-                type = "target"
-            end
-        else
-            type = "no designation"
+            Application.create(student_id: self.id, college_id: college.id, designation: type)
         end
-        Application.create(student_id: self.id, college_id: college.id, designation: type)
     end
 
     def find_target_colleges_by_act_score
