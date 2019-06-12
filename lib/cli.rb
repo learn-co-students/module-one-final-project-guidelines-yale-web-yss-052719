@@ -3,11 +3,10 @@ require_relative '../config/environment.rb'
 class CLI
 
     def initialize
-        # clean_screen
-        # starting_program
-        # menu 
+        clean_screen
+        starting_program
+        menu 
 
-        statename("Hawaii")
 
     end
 
@@ -18,13 +17,12 @@ class CLI
 
     def starting_program
         banner = "
-.___________..______       _______  _______     _______.
-|           ||   _  \     |   ____||   ____|   /       |
-`---|  |----`|  |_)  |    |  |__   |  |__     |   (----`
-    |  |     |      /     |   __|  |   __|     \   \    
-    |  |     |  |\  \----.|  |____ |  |____.----)   |   
-    |__|     | _| `._____||_______||_______|_______/    
-                                                        
+        ██████╗  █████╗ ██████╗ ██╗  ██╗██████╗ 
+        ██╔══██╗██╔══██╗██╔══██╗██║ ██╔╝██╔══██╗
+        ██████╔╝███████║██████╔╝█████╔╝ ██████╔╝
+        ██╔═══╝ ██╔══██║██╔══██╗██╔═██╗ ██╔══██╗
+        ██║     ██║  ██║██║  ██║██║  ██╗██║  ██║
+        ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
 "
     print banner
         Catpix::print_image "./img/npark1.jpg",
@@ -37,7 +35,7 @@ class CLI
             :resolution => "high"
 
 
-        puts "Welcome user. Please enter your name here:"
+        puts "Welcome to Parkr. The premier environmentalism application <3"
         @prompt = TTY::Prompt.new
 
         @user_name = @prompt.ask('What is your name?', default: ENV['USER'])
@@ -48,14 +46,6 @@ class CLI
         @users.update(:state => @user_state)
         @users.save
     end
-
-    # Menu
-    # 1, Specific state
-    #     your state or another state
-    # 2. specific park
-    #     give us a park name
-    # 3. Update state
-    # 4. Quit
 
     def menu
         # prompt = TTY::Prompt.new
@@ -85,7 +75,6 @@ class CLI
     end
 
     def statename(string)
-
         State.all.each do |state|
             if string == state.abb || string == state.state
                 return state.abb
