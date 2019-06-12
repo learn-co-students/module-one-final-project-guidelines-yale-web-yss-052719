@@ -290,11 +290,11 @@ class Cli
     
     def update_info
         choices = [
-            {name: 'Get College Recommendations', value: 1},
-            {name: 'Create an Application', value: 2},
-            {name: 'See Applications', value: 3},
-            {name: 'Look up a College', value: 7},
-            {name: 'See Info', value: 4},
+            {name: 'First Name', value: 1},
+            {name: 'Last Name', value: 2},
+            {name: 'Grade', value: 3},
+            {name: 'High School', value: 7},
+            {name: 'Grau', value: 4},
             {name: 'Update Info', value: 5},
             {name: 'Logout', value: 6}
           ]
