@@ -6,6 +6,7 @@ class CLI
         clean_screen
         starting_program
         menu 
+
     end
 
  
@@ -35,13 +36,13 @@ class CLI
 
 
         puts "Welcome user. Please enter your name here:"
-        prompt = TTY::Prompt.new
+        @prompt = TTY::Prompt.new
 
-        @user_name = prompt.ask('What is your name?', default: ENV['USER'])
+        @user_name = @prompt.ask('What is your name?', default: ENV['USER'])
         @users = User.create(:name => @user_name, :state => nil)
         @users.save
         puts "Hello, #{@user_name}!"
-        @user_state = prompt.ask('Which state are you from?', default: 'CT')
+        @user_state = @prompt.ask('Which state are you from?', default: 'CT')
         @users.update(:state => @user_state)
         @users.save
     end
@@ -55,8 +56,8 @@ class CLI
     # 4. Quit
 
     def menu
-        prompt = TTY::Prompt.new
-        num = prompt.select("Please choose from one of the options below:") do |menu|
+        # prompt = TTY::Prompt.new
+        num = @prompt.select("Please choose from one of the options below:") do |menu|
             menu.default 4
 
             menu.choice 'See all national parks from a state?', 1
@@ -81,12 +82,26 @@ class CLI
 
     end
 
+    def favorite 
+        prompt = TTY::Prompt.new
+        temp_parkid = 0
+        Park.all.each do |park|
+            park.name == "Lincoln Memorial" # add acquired prompt
+            temp_parkid = park.id
+        end
+        @Favorite = Favorite.create(:user_id => 1, :park_id => temp_parkid, :review => "")
+        rev = prompt.ask('Please write a review for the park')
+        @Favorite.update(:review => rev)
+        @Favorite.save
+
+    end
+
 
     def findbystate
-        prompt = TTY::Prompt.new
-        choice = prompt.select("Where would you like to find national parks from?") do |menu|
+        # @prompt = TTY::Prompt.new
+        choice = @prompt.select("Where would you like to find national parks from?") do |menu|
             menu.choice 'My Home State!'
-            menu.choice 'Another State'
+            menu.choice 'Another State.'
         end
         
         if choice == 'My Home State!'
@@ -102,7 +117,7 @@ class CLI
             menu
 
         else
-            state = prompt.ask('What state?')
+            state = @prompt.ask('What state?')
             not_park = Park.where state: state
             if not_park == []
                 puts "There are no parks in this state :("
@@ -118,34 +133,39 @@ class CLI
     end
 
 
+
     def findapark
-        prompt = TTY::Prompt.new
-        temp = prompt.ask("Which park do you want to learn about?", required: true)
-        Park.all.find do |park|
-            park.name == temp
-        end
-        user_park = Park.find_by name: temp
+        # prompt = TTY::Prompt.new
+        temp = @prompt.ask("Which park do you want to learn about?", required: true)
+
+        if Park.all.find { |park| park.name == temp} == nil
+            puts "Please input an actual park"
+        else
+            user_park = Park.find_by name: temp
         #format prettier
         puts user_park.name, user_park.state, user_park.description, user_park.operating_hours, user_park.entrance_fee, user_park.weather
+        end
+
         menu
     end
 
+
     def updateuser
-        prompt = TTY::Prompt.new
-        num = prompt.select("What would you like to update?") do |menu|
+        # prompt = TTY::Prompt.new
+        num = @prompt.select("What would you like to update?") do |menu|
             menu.choice 'My username', 1
             menu.choice 'My Home State', 2
         end
 
         case num
         when 1
-            temp = prompt.ask("What would you like to update your username to?")
+            temp = @prompt.ask("What would you like to update your username to?")
             @users.update(name: temp)
             @users.save
             puts "Username updated to: #{@users.name}"
             menu
         when 2
-            temp1 = prompt.ask("What would you like to update your home state to?")
+            temp1 = @prompt.ask("What would you like to update your home state to?")
             @users.update(name: temp1)
             @users.save
             puts "HomeState updated to: #{@users.state}"
