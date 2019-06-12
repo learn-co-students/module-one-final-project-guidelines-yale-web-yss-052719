@@ -1,0 +1,26 @@
+current directory: /Users/xavierruiz/module-one-final-project-guidelines-yale-web-yss-052719/vendor/cache/ruby/2.6.0/gems/ruby-terminfo-0.1.1
+/Users/xavierruiz/.rvm/rubies/ruby-2.6.1/bin/ruby -I /Users/xavierruiz/.rvm/rubies/ruby-2.6.1/lib/ruby/site_ruby/2.6.0 -r ./siteconf20190612-74771-gfa7pp.rb extconf.rb
+checking for setupterm() in -lncurses... yes
+checking for rb_io_t in ruby.h,rubyio.h... yes
+checking for rb_io_t.fd in ruby.h,rubyio.h... yes
+checking for OpenFile.fd in ruby.h,rubyio.h... no
+creating extconf.h
+creating Makefile
+
+current directory: /Users/xavierruiz/module-one-final-project-guidelines-yale-web-yss-052719/vendor/cache/ruby/2.6.0/gems/ruby-terminfo-0.1.1
+make "DESTDIR=" clean
+
+current directory: /Users/xavierruiz/module-one-final-project-guidelines-yale-web-yss-052719/vendor/cache/ruby/2.6.0/gems/ruby-terminfo-0.1.1
+make "DESTDIR="
+compiling terminfo.c
+In file included from terminfo.c:33:
+/Users/xavierruiz/.rvm/rubies/ruby-2.6.1/include/ruby-2.6.0/ruby/backward/rubyio.h:2:2: warning: use "ruby/io.h" instead of "rubyio.h" [-W#warnings]
+#warning use "ruby/io.h" instead of "rubyio.h"
+ ^
+1 warning generated.
+linking shared-object terminfo.bundle
+
+current directory: /Users/xavierruiz/module-one-final-project-guidelines-yale-web-yss-052719/vendor/cache/ruby/2.6.0/gems/ruby-terminfo-0.1.1
+make "DESTDIR=" install
+/usr/local/opt/coreutils/bin/ginstall -c -m 0755 terminfo.bundle ./.gem.20190612-74771-1v6an09
+installing default terminfo libraries

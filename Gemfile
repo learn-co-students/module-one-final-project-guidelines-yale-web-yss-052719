@@ -7,7 +7,7 @@ gem "require_all"
 
 gem "httparty"
 gem 'tty-prompt'
-gem 'rmagick'
+gem 'rmagick', '~>2.16.0'
 gem 'catpix'
 
 
