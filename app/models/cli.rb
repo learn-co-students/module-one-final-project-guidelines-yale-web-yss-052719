@@ -104,22 +104,16 @@ class Cli
         elsif Student.find_by(username: username) || College.find_by(username: username)
             puts "Error. Username already taken."
             create_username
-<<<<<<< HEAD
         elsif @s_o_c == 1
             @s_o_c = 0
-            @student = Student.create(username: username)
-            enter_info
+            enter_info(username)
             main_menu_student
         elsif @s_o_c == -1
             @s_o_c = 0
             college_name = PROMPT.ask("Which college are you? (enter the school id or name)", required: true)
             @college = College.find_by(name: college_name)
-            @college.username=username
+            @college.username = username
             main_menu_college
-=======
-        else
-            enter_info(username)
->>>>>>> 18071afeef47037b0de73df2b7981aaa30c0fbbe
         end
         @log_in = 0 
     end
@@ -150,16 +144,6 @@ class Cli
 
     def enter_info(username)
         ## ADD: Defensive Coding -- require different data types for each PROMPT
-<<<<<<< HEAD
-        first_name = PROMPT.ask("Please enter your first name", required: true, convert: :string)
-        last_name = PROMPT.ask('Please enter your last name', required: true, convert: :string)
-        high_school = PROMPT.ask('Please enter your high school', required: true, convert: :string)
-        grade = PROMPT.ask('Please enter your grade', required: true, convert: :int)
-        grad_year = PROMPT.ask('Please enter your graduation year', required: true, convert: :int)
-        act_score = PROMPT.ask('Please enter your predicted or real ACT score', default: nil, required: true, convert: :int)
-        sat_score = PROMPT.ask('Please enter your predicted or real SAT score', default: nil, required: true, convert: :int)
-        @student.update(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, sat_score: sat_score)
-=======
         first_name = PROMPT.ask('Please enter your first name (required) ', required: true, convert: :string)
 
         last_name = PROMPT.ask('Please enter your last name (required) ', required: true, convert: :string)
@@ -195,7 +179,6 @@ class Cli
         @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, sat_score: sat_score, username: username)
 
         # Only creates a Student instance (and a row in the database) once all the info is filled in
->>>>>>> 18071afeef47037b0de73df2b7981aaa30c0fbbe
     end
 
     def main_menu_student
@@ -277,13 +260,9 @@ class Cli
     end
 
     def create_an_application
-<<<<<<< HEAD
         clear_screen
         puts "What college do you want to apply to? \n(enter the school id or name)\n"
         college = PROMPT.ask('Do not forget to include "University" or "College" in the full school name')
-=======
-        college = PROMPT.ask("What college do you want to apply to? Enter the school id or full name.", default: ENV['USER'])
->>>>>>> 18071afeef47037b0de73df2b7981aaa30c0fbbe
         if college.numeric?
             if @student.create_application_by_school_id(college)
                 puts "Application Created!"
