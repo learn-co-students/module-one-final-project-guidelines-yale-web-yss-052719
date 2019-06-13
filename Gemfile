@@ -13,3 +13,5 @@ gem "tty-prompt"
 gem "tty-table"
 gem 'rmagick'
 gem "catpix"
+gem "rspec"
+gem "shoulda-matchers"
