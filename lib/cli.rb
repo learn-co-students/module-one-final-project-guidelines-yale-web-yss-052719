@@ -20,16 +20,16 @@ class CLI
     #Convert state names to their abbreviations
     def statename(string)
         #case for DoC + capitlizing statenames
-        if string.split.count > 2 && [1].upcase == "OF"
+        if string.split.count > 2 && string.split[1].upcase == "OF"
             nstring = "District of Columbia"
         else
             nstring = string.split.map(&:capitalize).join(' ')
         end
 
         #checks for abb or statename
-        if State.exists?(:state => nstring) || State.exists?(:abb => string)
+        if State.exists?(:state => nstring) || State.exists?(:abb => string.upcase)
             State.all.each do |state|
-                if string == state.abb || nstring == state.state
+                if string.upcase == state.abb || nstring == state.state
                     return state.abb
                 end
             end
@@ -51,14 +51,14 @@ class CLI
         ╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝
 "
     print banner
-        # Catpix::print_image "./img/npark1.jpg",
-        #     :limit_x => 1.0,
-        #     :limit_y => 0,
-        #     :center_x => true,
-        #     :center_y => true,
-        #     :bg => "white",
-        #     :bg_fill => true,
-        #     :resolution => "high"
+        Catpix::print_image "./img/npark1.jpg",
+            :limit_x => 1.0,
+            :limit_y => 0,
+            :center_x => true,
+            :center_y => true,
+            :bg => "white",
+            :bg_fill => true,
+            :resolution => "high"
 
 
         puts "Welcome to Parkr. The premier environmentalism application <3"
@@ -201,6 +201,7 @@ class CLI
         num = @prompt.select("What would you like to update?") do |menu|
             menu.choice 'My Username', 1
             menu.choice 'My Home State', 2
+            menu.choice '<-- Back to Menu', 3
         end
 
         case num
@@ -213,6 +214,8 @@ class CLI
             temp1 = @prompt.ask("What would you like to update your home state to?")
             @users.update(state: statename(temp1))
             @prompt.ok("Home State updated to: #{@users.state}")
+            menu
+        when 3
             menu
         end
     end
@@ -251,7 +254,9 @@ class CLI
             fav = @prompt.yes?('Would you like to favorite this park?', default: 'Y')
 
             if fav
-                Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
+                #through activerecord auto creates connection
+                @users.parks << park
+                # Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
                 @prompt.ok("'#{park.name}' was added to your favorites")
                 menu
             else
@@ -286,10 +291,11 @@ class CLI
     #Shows all parks that have reviews
     def user_rev
         revParks = Favorite.all.select do |fav|
-            fav.review != ""
+            fav.review != nil && fav.review != ""
         end.map do |fav|
             fav.park.name
         end.uniq
+     
         # arr.each do |a|
         #     puts "#{a.park.name}: #{a.review}"
         # end
@@ -313,10 +319,12 @@ class CLI
     def show_revs(park)
         search = Park.find_by name: park
         parkRevs = Favorite.where park_id: search.id
-
+        
         parkRevs.each do |fav|
-            puts "User: #{fav.user.name}\n"
-            puts "#{fav.review}"
+            if fav.review != nil && fav.review != ""
+                puts "User: #{fav.user.name}\n"
+                puts "#{fav.review}"
+            end
         end
 
         @prompt.keypress("Press space or enter to continue", keys: [:space, :return])
