@@ -152,7 +152,6 @@ class Cli
                 q.in '1-36'
                 q.messages[:range?] = 'Not a valid ACT score'
             end
-            binding.pry
         end
 
         sat_score = PROMPT.ask('Please enter your predicted or real SAT score (optional: press enter to continue) ', default: nil) do |q|
