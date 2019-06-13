@@ -10,5 +10,6 @@ gem "rake"
 gem "json"
 gem "database_cleaner"
 gem "tty-prompt"
+gem "tty-table"
 gem 'rmagick'
 gem "catpix"

@@ -154,4 +154,9 @@ class Student < ActiveRecord::Base
 
         safety_colleges.sample(3)
     end
+
+    def colleges_table(colleges)
+        table = TTY::Table.new ["", "#{colleges[0].name}", "#{colleges[1].name}", "#{colleges[2].name}"], [["School ID:", "#{colleges[0].school_id}", "#{colleges[1].school_id}", "#{colleges[2].school_id}"], ["City:", "#{colleges[0].city}", "#{colleges[1].city}", "#{colleges[2].city}"], ["State:", "#{colleges[0].state}", "#{colleges[1].state}", "#{colleges[2].state}"]]
+        table.render :unicode, resize: true
+    end
 end
