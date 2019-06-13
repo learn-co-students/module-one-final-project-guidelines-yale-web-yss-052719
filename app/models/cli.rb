@@ -293,12 +293,48 @@ class Cli
             {name: 'First Name', value: 1},
             {name: 'Last Name', value: 2},
             {name: 'Grade', value: 3},
-            {name: 'High School', value: 7},
-            {name: 'Grau', value: 4},
-            {name: 'Update Info', value: 5},
-            {name: 'Logout', value: 6}
-          ]
-        @main_menu = PROMPT.select("What do you want to edit?", choices)
+            {name: 'High School', value: 4},
+            {name: 'Graduation Year', value: 5},
+            {name: 'ACT Score', value: 6},
+            {name: 'SAT Score', value: 7},
+            {name: 'Exit', value: 8}
+        ]
+
+        value = 0
+
+        unless value == 8
+            value = PROMPT.select("What do you want to edit?", choices)
+
+            if value == 1
+                first_name = PROMPT.ask('Please enter your first name:', required: true)
+                @student.update(first_name: first_name)
+                puts "Updated!"
+            elsif value == 2
+                last_name = PROMPT.ask('Please enter your last name:', required: true)
+                @student.update(last_name: last_name)
+                puts "Updated!"
+            elsif value == 3
+                grade = PROMPT.ask('Please enter your grade:', required: true)
+                @student.update(grade: grade)
+                puts "Updated!"
+            elsif value == 4
+                high_school = PROMPT.ask('Please enter your high school:', required: true)
+                @student.update(high_school: high_school)
+                puts "Updated!"
+            elsif value == 5
+                grad_year = PROMPT.ask('Please enter your graduation year:', required: true)
+                @student.update(grad_year: grad_year)
+                puts "Updated!"
+            elsif value == 6
+                act_score = PROMPT.ask('Please enter your predicted or real ACT score:', default: nil, required: true)
+                @student.update(act_score: act_score)
+                puts "Updated!"
+            elsif value == 7
+                sat_score = PROMPT.ask('Please enter your predicted or real SAT score:', default: nil, required: true)
+                @student.update(sat_score: sat_score)
+                puts "Updated!"
+            end
+        end
         
         @main_menu = 0
         main_menu_student
