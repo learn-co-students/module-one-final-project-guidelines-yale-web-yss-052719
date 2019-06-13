@@ -94,12 +94,11 @@ class Cli
     end
 
     def create_username
-        ## we need to create option for colleges to create username
         puts "\nWho who whooooooo are you? 🦉\n(Please create a unique username. I recommend a combination of letters and numbers!)\n"
         username = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
-        # binding.pry
         if username.downcase == "exit"
             clear_screen
+            opening_image
             log_in_menu
         elsif Student.find_by(username: username) || College.find_by(username: username)
             puts "Error. Username already taken."
@@ -112,7 +111,7 @@ class Cli
             @s_o_c = 0
             college_name = PROMPT.ask("Which college are you? (enter the school id or name)", required: true)
             @college = College.find_by(name: college_name)
-            @college.username = username
+            @college.username=username
             main_menu_college
         end
         @log_in = 0 
@@ -123,8 +122,8 @@ class Cli
         username = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
         if username.downcase == "exit"
             clear_screen
+            opening_image
             log_in_menu
-            ## think we can change delete the @s_o_c conditions
         elsif Student.find_by(username: username)
             @student = Student.find_by(username: username)
             main_menu_student
@@ -137,13 +136,8 @@ class Cli
         end
     end
 
-    # prompt.ask('How spicy on scale (1-5)? ') do |q|
-    #     q.in '1-5'
-    #     q.messages[:range?] = '%{value} out of expected range #{in}'
-    #   end
-
     def enter_info(username)
-        ## ADD: Defensive Coding -- require different data types for each PROMPT
+        ## Defensive coding for SAT / ACT score
         first_name = PROMPT.ask('Please enter your first name (required) ', required: true, convert: :string)
 
         last_name = PROMPT.ask('Please enter your last name (required) ', required: true, convert: :string)
@@ -298,7 +292,7 @@ class Cli
         @main_menu = 0
         
         ## make sure this only takes boolean
-        delete = PROMPT.yes?("Would you like to remove any applications at this time?")
+        delete = PROMPT.yes?(🦉 "Would you like to remove any applications at this time?")
         if delete == false
             main_menu_student
         elsif delete == true
@@ -312,22 +306,22 @@ class Cli
 
     def delete_applications
         clear_screen
-        puts "Which college would you like to remove from your applications? \n(Enter college name or school id)\n"
+        puts "🦉 Which college would you like to remove from your applications? \n(Enter college name or school id)\n"
         input = PROMPT.ask('Do not forget to include "University" or "College" in the full school name', required: true)
         if input.numeric?
             if app = Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: input).id)
                 ## get no method error if nil is called becaused nil.id doesn't exist
                 app.destroy
-                puts "Succesfully deleted!"
+                puts "🦉 Succesfully deleted!"
             else
-                puts "Not a valid school id."
+                puts "🦉 Not a valid school id."
             end
         else
             if app = Application.find_by(student_id: @student.id, college_id: College.find_by(name: input).id)
                 app.destroy
-                puts "Succesfully deleted!"
+                puts "🦉 Succesfully deleted!"
             else
-                puts "Not a valid college name."
+                puts "🦉 Not a valid college name."
             end
         end
             
