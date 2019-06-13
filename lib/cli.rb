@@ -61,7 +61,7 @@ class CLI
             :resolution => "high"
 
 
-        puts "Welcome to Parkr. The premier environmentalism application <3"
+        puts "🌲Welcome to Parkr, the premier environmentalist application.🌲"
         @prompt = TTY::Prompt.new
 
         #Create user
@@ -70,7 +70,7 @@ class CLI
         @users.save
 
         #Greet user
-        puts "Hello, #{@user_name}!"
+        puts "🤠 Hello, #{@user_name}!"
         @user_state = statename(@prompt.ask('Which state are you from?', default: 'CT'))
         @users.update(:state => @user_state)
         @users.save
@@ -121,7 +121,7 @@ class CLI
  
     def find_by_state
 
-        choice = @prompt.select("Where would you like to find national parks from?") do |menu|
+        choice = @prompt.select("🌲🌱Where would you like to find national parks from?🌵🌾") do |menu|
             menu.choice 'My Home State!'
             menu.choice 'Another State.'
         end
@@ -139,7 +139,7 @@ class CLI
     #Find a specific park by name
     def find_a_park
         # prompt = TTY::Prompt.new
-        temp = @prompt.ask("Which park do you want to learn about?", required: true)
+        temp = @prompt.ask("⛰ Which park do you want to learn about?🏕 ", required: true)
 
         if Park.all.find { |park| park.name == temp} == nil
             puts "Please input an actual park"
@@ -168,7 +168,7 @@ class CLI
             puts "There are no parks in this state :("
             menu
         else
-            pick = @prompt.select("Select a park to find out more information:") do |menu|
+            pick = @prompt.select("🍃Select a park to find out more information:") do |menu|
                 menu.default 1
 
                 parkList.each do |park|
@@ -199,19 +199,19 @@ class CLI
     def update_user
         # prompt = TTY::Prompt.new
         num = @prompt.select("What would you like to update?") do |menu|
-            menu.choice 'My Username', 1
-            menu.choice 'My Home State', 2
+            menu.choice '🤠 My Username', 1
+            menu.choice '⛺️ My Home State', 2
             menu.choice '<-- Back to Menu', 3
         end
 
         case num
         when 1
-            temp = @prompt.ask("What would you like to update your username to?")
+            temp = @prompt.ask("🌚 What would you like to update your username to? 🌝")
             @users.update(name: temp)
             @prompt.ok("Username updated to: #{@users.name}")
             menu
         when 2
-            temp1 = @prompt.ask("What would you like to update your home state to?")
+            temp1 = @prompt.ask("🇺🇸  What would you like to update your home state to? 🇺🇸")
             @users.update(state: statename(temp1))
             @prompt.ok("Home State updated to: #{@users.state}")
             menu
@@ -229,7 +229,7 @@ class CLI
             puts "There are no saved favorites."
             menu
         else
-            pick = @prompt.select("Select a park to find out more information:") do |menu|
+            pick = @prompt.select("💚 Select a favorite to find out more information:") do |menu|
                 menu.default 1
 
                 @users.favorites.reload.each do |fav|
@@ -257,7 +257,7 @@ class CLI
                 #through activerecord auto creates connection
                 @users.parks << park
                 # Favorite.create(user_id: @users.id, park_id: park.id, :review => "")
-                @prompt.ok("'#{park.name}' was added to your favorites")
+                @prompt.ok("💚 '#{park.name}' was added to your favorites")
                 menu
             else
                 menu
@@ -268,7 +268,7 @@ class CLI
             thisFav = Favorite.find_by user_id: @users.id, park_id: park.id
             parkName = thisFav.park.name
 
-            review = @prompt.yes?('Would you like to write a review for this park?', default: 'Y')
+            review = @prompt.yes?('✨Would you like to write a review for this park?', default: 'Y')
 
             if review
                 userreview = @prompt.ask("Write your review here:")
@@ -285,7 +285,7 @@ class CLI
 
             if unfav
                 thisFav.destroy
-                @prompt.ok("'#{parkName}' was removed from your favorites")
+                @prompt.ok("💔'#{parkName}' was removed from your favorites")
                 user_fav
             else
                 user_fav
@@ -305,7 +305,7 @@ class CLI
         #     puts "#{a.park.name}: #{a.review}"
         # end
 
-        pick = @prompt.select("Select a park to read reviews about:") do |menu|
+        pick = @prompt.select("⭐️ Select a park to read reviews about:") do |menu|
             menu.default 1
 
             revParks.each do |park|
