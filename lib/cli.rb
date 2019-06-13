@@ -20,7 +20,7 @@ class CLI
     #Convert state names to their abbreviations
     def statename(string)
         #case for DoC + capitlizing statenames
-        if string.split[1].upcase == "OF"
+        if string.split.count > 2 && [1].upcase == "OF"
             nstring = "District of Columbia"
         else
             nstring = string.split.map(&:capitalize).join(' ')
@@ -118,20 +118,6 @@ class CLI
         end
 
     end
-
-
-    def user_rev
-        arr = Favorite.all.select do |fav|
-            fav.review != ""
-        end
-        arr.each do |a|
-            puts "#{a.park.name}: #{a.review}"
-        end
-
-        menu
-
-    end
-
  
     def find_by_state
 
@@ -163,6 +149,50 @@ class CLI
         end
 
         menu
+    end
+
+    #List all parks from a state
+    def list_parks(state)
+        parkList = Park.where state: state
+            
+
+        if parkList == []
+            Catpix::print_image "./img/pikachu.png",
+            :limit_x => 1.0,
+            :limit_y => 0,
+            :center_x => true,
+            :center_y => true,
+            :bg => "white",
+            :bg_fill => true,
+            :resolution => "high"
+            puts "There are no parks in this state :("
+            menu
+        else
+            pick = @prompt.select("Select a park to find out more information:") do |menu|
+                menu.default 1
+
+                parkList.each do |park|
+                    menu.choice park.name
+                end
+                menu.choice '<- Back to main menu'
+            end
+
+            if pick == "<- Back to main menu"
+                menu
+            else
+                list_info(pick, 0)
+            end
+        end
+    end
+
+    #List info for a specific park
+    def list_info(park, code)
+        user_park = Park.find_by name: park
+
+        puts user_park.name, user_park.state, 
+        user_park.description, user_park.weather
+
+        favorite(user_park, code)
     end
 
     #Allow user to update username or home state
@@ -213,50 +243,6 @@ class CLI
         end
     end
 
-    #List info for a specific park
-    def list_info(park, code)
-        user_park = Park.find_by name: park
-
-        puts user_park.name, user_park.state, 
-        user_park.description, user_park.weather
-
-        favorite(user_park, code)
-    end
-
-    #List all parks from a state
-    def list_parks(state)
-        parkList = Park.where state: state
-            
-
-        if parkList == []
-            Catpix::print_image "./img/pikachu.png",
-            :limit_x => 1.0,
-            :limit_y => 0,
-            :center_x => true,
-            :center_y => true,
-            :bg => "white",
-            :bg_fill => true,
-            :resolution => "high"
-            puts "There are no parks in this state :("
-            menu
-        else
-            pick = @prompt.select("Select a park to find out more information:") do |menu|
-                menu.default 1
-
-                parkList.each do |park|
-                    menu.choice park.name
-                end
-                menu.choice '<- Back to main menu'
-            end
-
-            if pick == "<- Back to main menu"
-                menu
-            else
-                list_info(pick, 0)
-            end
-        end
-    end
-
     #Function to handle creation of favorites
     def favorite(park, code)
 
@@ -295,6 +281,46 @@ class CLI
                 user_fav
             end
         end
+    end
+
+    #Shows all parks that have reviews
+    def user_rev
+        revParks = Favorite.all.select do |fav|
+            fav.review != ""
+        end.map do |fav|
+            fav.park.name
+        end.uniq
+        # arr.each do |a|
+        #     puts "#{a.park.name}: #{a.review}"
+        # end
+
+        pick = @prompt.select("Select a park to read reviews about:") do |menu|
+            menu.default 1
+
+            revParks.each do |park|
+                menu.choice park
+            end
+            menu.choice '<- Back to main menu'
+        end
+
+        if pick == "<- Back to main menu"
+            menu
+        else
+            show_revs(pick)
+        end
+    end
+
+    def show_revs(park)
+        search = Park.find_by name: park
+        parkRevs = Favorite.where park_id: search.id
+
+        parkRevs.each do |fav|
+            puts "User: #{fav.user.name}\n"
+            puts "#{fav.review}"
+        end
+
+        @prompt.keypress("Press space or enter to continue", keys: [:space, :return])
+        user_rev
     end
 
 end
