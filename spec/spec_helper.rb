@@ -97,6 +97,7 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 =end
+<<<<<<< HEAD
   Shoulda::Matchers.configure do |config|
     config.integrate do |with|
       with.test_framework :rspec
@@ -106,6 +107,8 @@ RSpec.configure do |config|
       with.library :active_model
     end
   end
+=======
+>>>>>>> 231f59df22b73e1f9d4bc45aaa01c3f9c2f12bad
 
 end
 

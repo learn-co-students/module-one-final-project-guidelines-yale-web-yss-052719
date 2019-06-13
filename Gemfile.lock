@@ -64,8 +64,17 @@ GEM
       rspec-support (~> 3.8.0)
     rspec-support (3.8.2)
     ruby-terminfo (0.1.1)
+<<<<<<< HEAD
     shoulda-matchers (4.1.0)
       activesupport (>= 4.2.0)
+=======
+    shoulda (3.6.0)
+      shoulda-context (~> 1.0, >= 1.0.1)
+      shoulda-matchers (~> 3.0)
+    shoulda-context (1.2.2)
+    shoulda-matchers (3.1.3)
+      activesupport (>= 4.0.0)
+>>>>>>> 231f59df22b73e1f9d4bc45aaa01c3f9c2f12bad
     sinatra (2.0.5)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -118,7 +127,11 @@ DEPENDENCIES
   require_all
   rmagick
   rspec
+<<<<<<< HEAD
   shoulda-matchers
+=======
+  shoulda
+>>>>>>> 231f59df22b73e1f9d4bc45aaa01c3f9c2f12bad
   sinatra-activerecord
   sqlite3
   tty-prompt
