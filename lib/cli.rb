@@ -332,7 +332,7 @@ class CLI
             end
         end
 
-        @prompt.keypress("Press space or enter to continue", keys: [:space, :return])
+        @prompt.keypress("Press space or enter to go back", keys: [:space, :return])
         user_rev
     end
 
