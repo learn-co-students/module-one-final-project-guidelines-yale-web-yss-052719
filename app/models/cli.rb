@@ -175,9 +175,33 @@ class Cli
                 puts "Please enter your ACT or SAT score before using this feature."
             end
         elsif input == 2
-
+            if @student.act_score
+                colleges = @student.find_target_colleges_by_act_score
+                colleges.each do |college|
+                    puts college.name
+                end
+            elsif @student.sat_score
+                colleges = @student.find_target_colleges_by_sat_score
+                colleges.each do |college|
+                    puts college.name
+                end
+            else
+                puts "Please enter your ACT or SAT score before using this feature."
+            end
         elsif input == 3
-            
+            if @student.act_score
+                colleges = @student.find_reach_colleges_by_act_score
+                colleges.each do |college|
+                    puts college.name
+                end
+            elsif @student.sat_score
+                colleges = @student.find_reach_colleges_by_sat_score
+                colleges.each do |college|
+                    puts college.name
+                end
+            else
+                puts "Please enter your ACT or SAT score before using this feature."
+            end
         end
         @main_menu = 0
         main_menu_student
