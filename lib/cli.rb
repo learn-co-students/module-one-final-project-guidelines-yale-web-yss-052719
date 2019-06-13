@@ -134,7 +134,7 @@ class CLI
 
     def user_fav
         if @users.favorites[0] == nil
-            
+            clean_screen
             puts "There are no saved favorites."
             menu
         else

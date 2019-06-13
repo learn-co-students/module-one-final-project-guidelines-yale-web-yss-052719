@@ -10,6 +10,8 @@ gem 'tty-prompt'
 gem 'rmagick', '~>2.16.0'
 gem 'catpix'
 
+gem 'rspec'
+gem 'shoulda-matchers'
 
 group :development do
 gem "pry"
