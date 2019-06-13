@@ -7,24 +7,21 @@ class Cli
     attr_accessor :student, :college, :log_in, :s_o_c, :main_menu, :college_menu, :students_by
 
     def initialize
+        clear_screen
+        opening_image
         log_in_menu
     end
 
     def logic
-    # begin with log_in_menu
         if @log_in == 1
-            student_or_college
+            log_in
         elsif @log_in == -1
-            create_username
-    # takes people to login
+            student_or_college
         elsif @s_o_c == 1
-            log_in
+            create_username
         elsif @s_o_c == -1
-            log_in
+            create_username
         end
-        # else
-        #     return nil
-        # end
     end
 
     def main_menu_logic
@@ -65,7 +62,7 @@ class Cli
        /    |    \\  |_> >  |_> >___ \\  |  | \\  ___/|  | \\/
        \\____|__  /   __/|   __/____  > |__|  \\___  >__|   
                \\/|__|   |__|       \\/            \\/       "
-        # puts "catpix app/models/'college_photo.jpeg'"
+        sleep(0.5)
         Catpix::print_image "app/images/college_photo.jpeg",
             :limit_x => 1.0,
             :limit_y => 0,
@@ -75,12 +72,13 @@ class Cli
     end
 
     def log_in_menu
-        opening_image
+        puts "\n"
         choices = [
+            {name: 'Create Account', value: -1},
             {name: 'Login', value: 1},
-            {name: 'Create Account', value: -1}
           ]
-        @log_in = PROMPT.select("Education advising made easy!", choices)
+        puts "Hi, I'm Owly! The College Advising Owl! 🦉\n"
+        @log_in = PROMPT.select("To begin: create a username or login!", choices)
         logic
     end
 
@@ -89,32 +87,49 @@ class Cli
             {name: 'Student', value: 1},
             {name: 'College', value: -1}
           ]
-        @s_o_c = PROMPT.select("Which kind of user are you?", choices)
+        puts "\n"
+        @s_o_c = PROMPT.select("Which kind of user are you? ", choices)
         @log_in = 0
         logic
     end
 
     def create_username
         ## we need to create option for colleges to create username
-        username = PROMPT.ask('Please create a unique username. We recommend a combination of letters and numbers!', required: true)
+        puts "\nWho who whooooooo are you? 🦉\n(Please create a unique username. I recommend a combination of letters and numbers!)\n"
+        username = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
         # binding.pry
-        if Student.find_by(username: username)
+        if username.downcase == "exit"
+            clear_screen
+            log_in_menu
+        elsif Student.find_by(username: username) || College.find_by(username: username)
             puts "Error. Username already taken."
             create_username
-        else
+        elsif @s_o_c == 1
+            @s_o_c = 0
             @student = Student.create(username: username)
             enter_info
+            main_menu_student
+        elsif @s_o_c == -1
+            @s_o_c = 0
+            college_name = PROMPT.ask("Which college are you? (enter the school id or name)", required: true)
+            @college = College.find_by(name: college_name)
+            @college.username=username
+            main_menu_college
         end
-        @log_in = 0
-        main_menu_student
+        @log_in = 0 
     end
 
     def log_in
-        username = PROMPT.ask('Please enter your username', required: true)
-        if @s_o_c == 1 && Student.find_by(username: username)
+        puts "\nWho who whooooooo are you? 🦉 \n(Please enter your username)\n"
+        username = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
+        if username.downcase == "exit"
+            clear_screen
+            log_in_menu
+            ## think we can change delete the @s_o_c conditions
+        elsif Student.find_by(username: username)
             @student = Student.find_by(username: username)
             main_menu_student
-        elsif @s_o_c == -1 && College.find_by(username: username)
+        elsif College.find_by(username: username)
             @college = College.find_by(username: username)
             main_menu_college
         else
@@ -125,7 +140,7 @@ class Cli
 
     def enter_info
         ## ADD: Defensive Coding -- require different data types for each PROMPT
-        first_name = PROMPT.ask('Please enter your first name', required: true, convert: :string)
+        first_name = PROMPT.ask("Please enter your first name", required: true, convert: :string)
         last_name = PROMPT.ask('Please enter your last name', required: true, convert: :string)
         high_school = PROMPT.ask('Please enter your high school', required: true, convert: :string)
         grade = PROMPT.ask('Please enter your grade', required: true, convert: :int)
@@ -150,6 +165,7 @@ class Cli
     end
 
     def get_college_recommendations
+        clear_screen
         choices = [
             {name: "Safety", value: 1},
             {name: "Target", value: 2},
@@ -195,7 +211,9 @@ class Cli
     end
 
     def create_an_application
-        college = PROMPT.ask("What college do you want to apply to? (enter the school id or name)", default: ENV['USER'])
+        clear_screen
+        puts "What college do you want to apply to? \n(enter the school id or name)\n"
+        college = PROMPT.ask('Do not forget to include "University" or "College" in the full school name')
         if college.numeric?
             if @student.create_application_by_school_id(college)
                 puts "Application Created!"
@@ -209,14 +227,15 @@ class Cli
                 puts "Not a valid college name."
             end
         end
-
         @main_menu = 0
         main_menu_student
     end
 
     def see_applications
+        ## add numbering system
+        clear_screen
         @student.applications.reload.each do |application|
-            puts "College: #{application.college.name}"
+            puts "🦉\nCollege: #{application.college.name}"
             puts "Designation: #{application.designation}"
             puts "School ID: #{application.college.school_id}"
             puts "City: #{application.college.city}"
@@ -224,11 +243,12 @@ class Cli
             puts "URL: #{application.college.url}"
             puts "Admissions Rate: #{application.college.admission_rate_overall_2017}"   
             puts "Average SAT Scores: #{application.college.sat_scores_average_overall_2017}"   
-            puts "Average ACT Scores: #{application.college.act_scores_average_cumulative_2013}"   
+            puts "Average ACT Scores: #{application.college.act_scores_average_cumulative_2013}\n"   
         end
 
         @main_menu = 0
         
+        ## make sure this only takes boolean
         delete = PROMPT.yes?("Would you like to remove any applications at this time?")
         if delete == false
             main_menu_student
@@ -242,7 +262,9 @@ class Cli
     end
 
     def delete_applications
-        input = PROMPT.ask('Which college would you like to remove from your applications? (Enter college name or school id)', required: true)
+        clear_screen
+        puts "Which college would you like to remove from your applications? \n(Enter college name or school id)\n"
+        input = PROMPT.ask('Do not forget to include "University" or "College" in the full school name', required: true)
         if input.numeric?
             if app = Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: input).id)
                 ## get no method error if nil is called becaused nil.id doesn't exist
@@ -266,47 +288,50 @@ class Cli
     end
 
     def see_info_student
-        puts "First Name: #{@student.first_name}"
+        clear_screen
+        puts "🦉\nFirst Name: #{@student.first_name}"
         puts "Last Name: #{@student.last_name}"
         puts "Grade: #{@student.grade}"
         puts "High School: #{@student.high_school}"
         puts "Grad Year: #{@student.grad_year}"
         puts "ACT Score: #{@student.act_score}"
         puts "SAT Score: #{@student.sat_score}"
-        puts "Username: #{@student.username}"
+        puts "Username: #{@student.username}\n"
         
         @main_menu = 0
         main_menu_student
     end
     
     def look_up_a_college
-        input = PROMPT.ask("Enter a college's name or school id.", default: ENV['USER'])
+        clear_screen
+        puts "Enter a college's name or school id.\n"
+        input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER'])
 
         if input.numeric?
             if college = College.find_by(school_id: input)
-                puts "Name: #{college.name}"
+                puts "🦉\nName: #{college.name}"
                 puts "School ID: #{college.school_id}"
                 puts "City: #{college.city}"
                 puts "State: #{college.state}"
                 puts "URL: #{college.url}"
                 puts "Admissions Rate: #{college.admission_rate_overall_2017}"   
                 puts "Average SAT Scores: #{college.sat_scores_average_overall_2017}"   
-                puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}" 
+                puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}\n" 
             else
-                puts "Not a valid school id."
+                puts "🦉\nNot a valid school id.\n"
             end
         else
             if college = College.find_by(name: input)
-                puts "Name: #{college.name}"
+                puts "🦉\nName: #{college.name}"
                 puts "School ID: #{college.school_id}"
                 puts "City: #{college.city}"
                 puts "State: #{college.state}"
                 puts "URL: #{college.url}"
                 puts "Admissions Rate: #{college.admission_rate_overall_2017}"   
                 puts "Average SAT Scores: #{college.sat_scores_average_overall_2017}"   
-                puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}" 
+                puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}\n" 
             else
-                puts "Not a valid college name."
+                puts "🦉\nNot a valid college name.\n"
             end
         end
 
@@ -315,6 +340,7 @@ class Cli
     end
     
     def update_info
+        clear_screen
         choices = [
             {name: 'First Name', value: 1},
             {name: 'Last Name', value: 2},
@@ -369,10 +395,22 @@ class Cli
     def log_out
         @main_menu = 0
         @college_menu = 0
+        clear_screen
+        Catpix::print_image "app/images/owl_image.jpeg",
+            :limit_x => 1.0,
+            :limit_y => 0,
+            :center_x => true,
+            :center_y => true,
+            :resolution => "high"
+        puts "\nThank you for joining me on this journey! Owl miss you 🦉"
+        sleep(2)
+        clear_screen
+        opening_image
         log_in_menu
     end
 
     def main_menu_college
+        clear_screen
         choices = [
             {name: 'Look at students interested in you?', value: 1},
             {name: 'Look up students by ___?', value: 2},
@@ -384,11 +422,14 @@ class Cli
     end
 
     def look_up_students
+        clear_screen
+        @college.students
         @college_menu = 0
         main_menu_college
     end
 
     def look_up_students_by
+        clear_screen
         @college_menu = 0
         choices = [
             {name: 'Look up students by grade?', value: 1},
@@ -422,7 +463,8 @@ class Cli
     end
 
     def see_info_college
-        puts "Name: #{@college.name}"
+        clear_screen
+        puts "\nName: #{@college.name}"
         puts "ID: #{@college.school_id}"
         puts "City: #{@college.city}"
         puts "State: #{@college.state}"
@@ -430,10 +472,14 @@ class Cli
         puts "Admission Rate: #{@college.admission_rate_overall_2017}"
         puts "Average SAT Scores: #{@college.sat_scores_average_overall_2017}"
         puts "Average ACT Scores: #{@college.act_scores_average_cumulative_2013}"
-        puts "Username: #{@college.username}"
+        puts "Username: #{@college.username}\n"
      
-        @main_menu = 0
-        main_menu_student
+        @college_menu = 0
+        main_menu_college
+    end
+
+    def clear_screen
+        system "clear"
     end
 
 end
