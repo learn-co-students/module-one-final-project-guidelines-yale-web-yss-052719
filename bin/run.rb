@@ -1,7 +1,8 @@
 require_relative '../config/environment'
 require 'pry'
 
-start
+clear_screen
+run
 binding.pry
 
 puts "HELLO WORLD"
