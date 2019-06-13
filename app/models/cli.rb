@@ -125,15 +125,14 @@ class Cli
 
     def enter_info
         ## ADD: Defensive Coding -- require different data types for each PROMPT
-        first_name = PROMPT.ask('Please enter your first name', required: true)
-        last_name = PROMPT.ask('Please enter your last name', required: true)
-        high_school = PROMPT.ask('Please enter your high school', required: true)
-        grade = PROMPT.ask('Please enter your grade', required: true)
-        grad_year = PROMPT.ask('Please enter your graduation year', required: true)
-        act_score = PROMPT.ask('Please enter your predicted or real ACT score', default: nil, required: true)
-        sat_score = PROMPT.ask('Please enter your predicted or real SAT score', default: nil, required: true)
+        first_name = PROMPT.ask('Please enter your first name', required: true, convert: :string)
+        last_name = PROMPT.ask('Please enter your last name', required: true, convert: :string)
+        high_school = PROMPT.ask('Please enter your high school', required: true, convert: :string)
+        grade = PROMPT.ask('Please enter your grade', required: true, convert: :int)
+        grad_year = PROMPT.ask('Please enter your graduation year', required: true, convert: :int)
+        act_score = PROMPT.ask('Please enter your predicted or real ACT score', default: nil, required: true, convert: :int)
+        sat_score = PROMPT.ask('Please enter your predicted or real SAT score', default: nil, required: true, convert: :int)
         @student.update(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, sat_score: sat_score)
-        ## FIX: when updating (after update info), can we pick which info is updated
     end
 
     def main_menu_student
@@ -163,42 +162,30 @@ class Cli
         if input == 1
             if @student.act_score
                 colleges = @student.find_safety_colleges_by_act_score
-                colleges.each do |college|
-                    puts college.name
-                end
+                @student.colleges_table(colleges)
             elsif @student.sat_score
                 colleges = @student.find_safety_colleges_by_sat_score
-                colleges.each do |college|
-                    puts college.name
-                end
+                @student.colleges_table(colleges)
             else
                 puts "Please enter your ACT or SAT score before using this feature."
             end
         elsif input == 2
             if @student.act_score
                 colleges = @student.find_target_colleges_by_act_score
-                colleges.each do |college|
-                    puts college.name
-                end
+                @student.colleges_table(colleges)
             elsif @student.sat_score
                 colleges = @student.find_target_colleges_by_sat_score
-                colleges.each do |college|
-                    puts college.name
-                end
+                @student.colleges_table(colleges)
             else
                 puts "Please enter your ACT or SAT score before using this feature."
             end
         elsif input == 3
             if @student.act_score
                 colleges = @student.find_reach_colleges_by_act_score
-                colleges.each do |college|
-                    puts college.name
-                end
+                @student.colleges_table(colleges)
             elsif @student.sat_score
                 colleges = @student.find_reach_colleges_by_sat_score
-                colleges.each do |college|
-                    puts college.name
-                end
+                @student.colleges_table(colleges)
             else
                 puts "Please enter your ACT or SAT score before using this feature."
             end
@@ -228,7 +215,7 @@ class Cli
     end
 
     def see_applications
-        @student.applications.each do |application|
+        @student.applications.reload.each do |application|
             puts "College: #{application.college.name}"
             puts "Designation: #{application.designation}"
             puts "School ID: #{application.college.school_id}"
@@ -243,9 +230,9 @@ class Cli
         @main_menu = 0
         
         delete = PROMPT.yes?("Would you like to remove any applications at this time?")
-        if delete == "No"
+        if delete == false
             main_menu_student
-        elsif delete == "Yes"
+        elsif delete == true
             delete_applications
         else
             puts "error"
@@ -255,8 +242,24 @@ class Cli
     end
 
     def delete_applications
-        input = PROMPT.ask('Which college would you like to remove from your applications?', required: true)
-
+        input = PROMPT.ask('Which college would you like to remove from your applications? (Enter college name or school id)', required: true)
+        if input.numeric?
+            if app = Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: input).id)
+                ## get no method error if nil is called becaused nil.id doesn't exist
+                app.destroy
+                puts "Succesfully deleted!"
+            else
+                puts "Not a valid school id."
+            end
+        else
+            if app = Application.find_by(student_id: @student.id, college_id: College.find_by(name: input).id)
+                app.destroy
+                puts "Succesfully deleted!"
+            else
+                puts "Not a valid college name."
+            end
+        end
+            
         ## FIX: complete this method
 
         main_menu_student
@@ -277,7 +280,6 @@ class Cli
     end
     
     def look_up_a_college
-        ## FIX: add relevant code
         input = PROMPT.ask("Enter a college's name or school id.", default: ENV['USER'])
 
         if input.numeric?
@@ -330,31 +332,31 @@ class Cli
             value = PROMPT.select("What do you want to edit?", choices)
 
             if value == 1
-                first_name = PROMPT.ask('Please enter your first name:', required: true)
+                first_name = PROMPT.ask('Please enter your first name:', required: true, convert: :string)
                 @student.update(first_name: first_name)
                 puts "Updated!"
             elsif value == 2
-                last_name = PROMPT.ask('Please enter your last name:', required: true)
+                last_name = PROMPT.ask('Please enter your last name:', required: true, convert: :string)
                 @student.update(last_name: last_name)
                 puts "Updated!"
             elsif value == 3
-                grade = PROMPT.ask('Please enter your grade:', required: true)
+                grade = PROMPT.ask('Please enter your grade:', required: true, convert: :int)
                 @student.update(grade: grade)
                 puts "Updated!"
             elsif value == 4
-                high_school = PROMPT.ask('Please enter your high school:', required: true)
+                high_school = PROMPT.ask('Please enter your high school:', required: true, convert: :string)
                 @student.update(high_school: high_school)
                 puts "Updated!"
             elsif value == 5
-                grad_year = PROMPT.ask('Please enter your graduation year:', required: true)
+                grad_year = PROMPT.ask('Please enter your graduation year:', required: true, convert: :int)
                 @student.update(grad_year: grad_year)
                 puts "Updated!"
             elsif value == 6
-                act_score = PROMPT.ask('Please enter your predicted or real ACT score:', default: nil, required: true)
+                act_score = PROMPT.ask('Please enter your predicted or real ACT score:', default: nil, required: true, convert: :int)
                 @student.update(act_score: act_score)
                 puts "Updated!"
             elsif value == 7
-                sat_score = PROMPT.ask('Please enter your predicted or real SAT score:', default: nil, required: true)
+                sat_score = PROMPT.ask('Please enter your predicted or real SAT score:', default: nil, required: true, convert: :int)
                 @student.update(sat_score: sat_score)
                 puts "Updated!"
             end
