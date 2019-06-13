@@ -30,8 +30,8 @@ Once the user inputs their name and home state, they will reach a menu screen wh
 
 
 ## Contributors Guide
-
+Not applicable.
 
 ## Licensing
-  Park'R can be used by the conditions written below:
+  Park'R can be used by the conditions by
   **Resource:** [MIT License](https://opensource.org/licenses/MIT)

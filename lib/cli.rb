@@ -272,8 +272,13 @@ class CLI
 
             if review
                 userreview = @prompt.ask("Write your review here:")
+                while userreview == "" || userreview == nil
+                    userreview = @prompt.ask("Please input an actual review:")
+                end
+
                 thisFav.update(review: userreview)
                 @prompt.ok("You have added a review for '#{parkName}'")
+                
             end
 
             unfav = @prompt.yes?('Would you like to remove this park from your favorites?')
