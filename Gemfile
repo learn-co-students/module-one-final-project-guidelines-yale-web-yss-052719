@@ -15,3 +15,4 @@ gem 'rmagick'
 gem "catpix"
 gem "rspec"
 gem "shoulda-matchers"
+gem "colorize"
