@@ -285,7 +285,7 @@ class CLI
 
             if unfav
                 thisFav.destroy
-                @prompt.ok("💔'#{parkName}' was removed from your favorites")
+                @prompt.ok("💔 '#{parkName}' was removed from your favorites")
                 user_fav
             else
                 user_fav
