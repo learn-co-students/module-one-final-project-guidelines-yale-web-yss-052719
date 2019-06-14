@@ -8,7 +8,7 @@ require './config/environment.rb'
 Park.destroy_all
 State.destroy_all
 
-html = HTTParty.get("https://developer.nps.gov/api/v1/parks?fields=operatingHours&fields=entranceFees&fields=standardHours&fields=addresses&api_key=ahCwYCRHHdChX6whIHBu794OfHMQPTzIrb5e3aUb", {headers:{"Accept" => "application/json"}})
+html = HTTParty.get("https://developer.nps.gov/api/v1/parks?fields=operatingHours&fields=entranceFees&fields=standardHours&fields=addresses&limit=400&api_key=ahCwYCRHHdChX6whIHBu794OfHMQPTzIrb5e3aUb", {headers:{"Accept" => "application/json"}})
 json = JSON.parse(html.body)
 
 # binding.pry

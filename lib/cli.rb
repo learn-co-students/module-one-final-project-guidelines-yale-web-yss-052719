@@ -63,7 +63,7 @@ class CLI
         @prompt = TTY::Prompt.new
 
         login
-        menu
+
     end
 
     def login
@@ -98,7 +98,7 @@ class CLI
             @users.update(:state => @user_state)
         end
     end
-    
+
     #Main menu
     def menu
         # prompt = TTY::Prompt.new

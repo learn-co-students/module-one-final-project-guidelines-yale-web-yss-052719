@@ -28,10 +28,10 @@ Once the user inputs their name and home state, they will reach a menu screen wh
 5. run run.rb in terminal "ruby ./bin/run.rb"
 6. Enjoy
 
+### Gems
+1. 
 
-## Contributors Guide
-Not applicable.
 
 ## Licensing
-  Park'R can be used by the conditions by
+  Park'R can be used by the conditions by the MIT License.
   **Resource:** [MIT License](https://opensource.org/licenses/MIT)
