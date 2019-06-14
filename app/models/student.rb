@@ -7,7 +7,7 @@ class Student < ActiveRecord::Base
 
     def create_application_by_name(college_name)
         if college = College.find_by(name: college_name)
-            if college.act_scores_average_cumulative_2013
+            if college.act_scores_average_cumulative_2013 && self.act_score
                 if college.act_scores_average_cumulative_2013 > self.act_score
                     type = "reach"
                 elsif college.act_scores_average_cumulative_2013 + 3 < self.act_score
@@ -15,7 +15,7 @@ class Student < ActiveRecord::Base
                 else
                     type = "target"
                 end
-            elsif college.sat_scores_average_overall_2017
+            elsif college.sat_scores_average_overall_2017 && self.sat_score
                 if college.sat_scores_average_overall_2017 > self.sat_score
                     type = "reach"
                 elsif college.sat_scores_average_overall_2017 + 3 < self.sat_score
@@ -24,7 +24,7 @@ class Student < ActiveRecord::Base
                     type = "target"
                 end
             else
-                type = "no designation"
+                type = "n/a"
             end
             Application.create(student_id: self.id, college_id: college.id, designation: type)
         end
