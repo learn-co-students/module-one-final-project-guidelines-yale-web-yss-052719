@@ -59,7 +59,7 @@ class CLI
             :resolution => "high"
 
 
-        puts "🌲Welcome to Parkr, the premier environmentalist application.🌲"
+        puts "🌲Welcome to PARKR, the premier environmentalist application.🌲"
         @prompt = TTY::Prompt.new
 
         login
