@@ -61,7 +61,7 @@ class Cli
         /  /_\\  \\\\____ \\\\____ \\/  ___/\\   __\\/ __ \\_  __ \\
        /    |    \\  |_> >  |_> >___ \\  |  | \\  ___/|  | \\/
        \\____|__  /   __/|   __/____  > |__|  \\___  >__|   
-               \\/|__|   |__|       \\/            \\/       "
+               \\/|__|   |__|       \\/            \\/       ".light_green
         sleep(0.5)
         Catpix::print_image "app/images/college_photo.jpeg",
             :limit_x => 1.0,
@@ -77,8 +77,8 @@ class Cli
             {name: 'Create Account', value: -1},
             {name: 'Login', value: 1},
           ]
-        puts "Hi, I'm Owly! The College Advising Owl! 🦉\n"
-        @log_in = PROMPT.select("To begin: create a username or login!", choices)
+        puts "Hi, I'm Owly! The College Advising Owl! 🦉\n".green
+        @log_in = PROMPT.select("To begin: create a username or login!".green, choices)
         logic
     end
 
@@ -88,20 +88,20 @@ class Cli
             {name: 'College', value: -1}
           ]
         puts "\n"
-        @s_o_c = PROMPT.select("Which kind of user are you? ", choices)
+        @s_o_c = PROMPT.select("Which kind of user are you? ".green, choices)
         @log_in = 0
         logic
     end
 
     def create_username
-        puts "\nWho who whooooooo are you? 🦉\n(Please create a unique username. I recommend a combination of letters and numbers!)\n"
+        puts "\nWho who whooooooo are you? 🦉\n(Please create a unique username. I recommend a combination of letters and numbers!)\n".green
         username = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
         if username.downcase == "exit"
             clear_screen
             opening_image
             log_in_menu
         elsif Student.find_by(username: username) || College.find_by(username: username)
-            puts "Error. Username already taken."
+            puts "Error. Username already taken.".red
             create_username
         elsif @s_o_c == 1
             @s_o_c = 0
@@ -109,7 +109,7 @@ class Cli
             main_menu_student
         elsif @s_o_c == -1
             @s_o_c = 0
-            college_name = PROMPT.ask("Which college are you? (enter the school id or name)", required: true)
+            college_name = PROMPT.ask("Which college are you? (enter the school id or name)".green, required: true)
             @college = College.find_by(name: college_name)
             @college.username=username
             main_menu_college
@@ -118,7 +118,7 @@ class Cli
     end
 
     def log_in
-        puts "\nWho who whooooooo are you? 🦉 \n(Please enter your username)\n"
+        puts "\nWho who whooooooo are you? 🦉 \n(Please enter your username)\n".green
         username = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
         if username.downcase == "exit"
             clear_screen
@@ -131,12 +131,13 @@ class Cli
             @college = College.find_by(username: username)
             main_menu_college
         else
-            puts "That is not a valid username. Try again."
+            puts "That is not a valid username. Try again.".red
             log_in
         end
     end
 
     def enter_info(username)
+        clear_screen
         ## Defensive coding for SAT / ACT score
         first_name = PROMPT.ask('Please enter your first name (required) ', required: true, convert: :string)
 
@@ -147,7 +148,7 @@ class Cli
         grade = PROMPT.ask('Please enter your grade (1-12) (required) ') do |q|
             q.required true
             q.in '1-12'
-            q.messages[:range?] = 'Not in expected grade range 1-12'
+            q.messages[:range?] = 'Not in expected grade range 1-12'.red
         end
 
         grad_year = PROMPT.ask('Please enter your graduation year (required) ') do |q|
@@ -159,14 +160,14 @@ class Cli
         act_score = PROMPT.ask('Please enter your predicted or real ACT score (optional: press enter to continue) ') do |q|
             if @input != nil
                 q.in '1-36'
-                q.messages[:range?] = 'Not a valid ACT score'
+                q.messages[:range?] = 'Not a valid ACT score'.red
             end
         end
 
         sat_score = PROMPT.ask('Please enter your predicted or real SAT score (optional: press enter to continue) ', default: nil) do |q|
             if @input != nil
                 q.in '400-1600'
-                q.messages[:range?] = 'Not a valid SAT score'
+                q.messages[:range?] = 'Not a valid SAT score'.red
             end
         end
 
@@ -176,6 +177,7 @@ class Cli
     end
 
     def main_menu_student
+        clear_screen
         choices = [
             {name: 'Get College Recommendations', value: 1},
             {name: 'Create an Application', value: 2},
@@ -185,7 +187,7 @@ class Cli
             {name: 'Update Info', value: 5},
             {name: 'Logout', value: 6}
           ]
-        @main_menu = PROMPT.select("What do you want to do today?", choices)
+        @main_menu = PROMPT.select("🦉 What do you want to do today?".green, choices)
         main_menu_logic
     end
 
@@ -196,7 +198,7 @@ class Cli
             {name: "Target", value: 2},
             {name: "Reach", value: 3}
         ]
-        input = PROMPT.select("Do you want to find safety, target, or reach schools? (Gives 3 random schools in the category you choose)", choices)
+        input = PROMPT.select("Do you want to find safety, target, or reach schools? (Gives 3 random schools in the category you choose)".green, choices)
 
         ## FIX: need to get info about the colleges, just returns 3 names right now
 
@@ -255,19 +257,19 @@ class Cli
 
     def create_an_application
         clear_screen
-        puts "What college do you want to apply to? \n(enter the school id or name)\n"
+        puts "What college do you want to apply to? \n(enter the school id or name)\n".green
         college = PROMPT.ask('Do not forget to include "University" or "College" in the full school name')
         if college.numeric?
             if @student.create_application_by_school_id(college)
-                puts "Application Created!"
+                puts "Application Created!".green
             else
-                puts "Not a valid school id."
+                puts "Not a valid school id.".red
             end
         else
             if @student.create_application_by_name(college)
                 puts "Application Created!"
             else
-                puts "Not a valid college name."
+                puts "Not a valid college name.".red
             end
         end
         @main_menu = 0
@@ -278,12 +280,14 @@ class Cli
         ## add numbering system
         clear_screen
         @student.applications.reload.each do |application|
-            puts "🦉\nCollege: #{application.college.name}"
+            print "\nCollege:"
+            puts " #{application.college.name}".blue
             puts "Designation: #{application.designation}"
             puts "School ID: #{application.college.school_id}"
             puts "City: #{application.college.city}"
             puts "State: #{application.college.state}"
-            puts "URL: #{application.college.url}"
+            print "URL:"
+            puts " #{application.college.url}".light_blue
             puts "Admissions Rate: #{application.college.admission_rate_overall_2017}"   
             puts "Average SAT Scores: #{application.college.sat_scores_average_overall_2017}"   
             puts "Average ACT Scores: #{application.college.act_scores_average_cumulative_2013}\n"   
@@ -291,37 +295,41 @@ class Cli
 
         @main_menu = 0
         
-        ## make sure this only takes boolean
-        delete = PROMPT.yes?(🦉 "Would you like to remove any applications at this time?")
+        choices = [
+            {name: 'Yes', value: true},
+            {name: 'No', value: false}
+          ]
+        delete = PROMPT.select("🦉 Would you like to remove any applications at this time?".green, choices)
+
         if delete == false
             main_menu_student
         elsif delete == true
             delete_applications
-        else
-            puts "error"
-            main_menu_student
         end
-        ## this isn't working
     end
 
     def delete_applications
         clear_screen
-        puts "🦉 Which college would you like to remove from your applications? \n(Enter college name or school id)\n"
-        input = PROMPT.ask('Do not forget to include "University" or "College" in the full school name', required: true)
-        if input.numeric?
+        print "🦉 Which college would you like to remove from your applications? \n(Enter college name or school id)\n".green
+        puts 'Do not forget to include "University" or "College" in the full school name'.green
+        input = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
+        if input.downcase == "exit"
+            clear_screen
+            main_menu_student
+        elsif input.numeric?
             if app = Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: input).id)
                 ## get no method error if nil is called becaused nil.id doesn't exist
                 app.destroy
-                puts "🦉 Succesfully deleted!"
+                puts "🦉 Succesfully deleted!".green
             else
-                puts "🦉 Not a valid school id."
+                puts "🦉 Not a valid school id.".red
             end
         else
             if app = Application.find_by(student_id: @student.id, college_id: College.find_by(name: input).id)
                 app.destroy
-                puts "🦉 Succesfully deleted!"
+                puts "🦉 Succesfully deleted!".green
             else
-                puts "🦉 Not a valid college name."
+                puts "🦉 Not a valid college name.".red
             end
         end
             
@@ -339,7 +347,8 @@ class Cli
         puts "Grad Year: #{@student.grad_year}"
         puts "ACT Score: #{@student.act_score}"
         puts "SAT Score: #{@student.sat_score}"
-        puts "Username: #{@student.username}\n"
+        print "Username:"
+        puts " #{@student.username}\n".blue
         
         @main_menu = 0
         main_menu_student
@@ -347,8 +356,8 @@ class Cli
     
     def look_up_a_college
         clear_screen
-        puts "Enter a college's name or school id.\n"
-        input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER'])
+        puts "Enter a college's name or school id.\n".green
+        input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER']).green
 
         if input.numeric?
             if college = College.find_by(school_id: input)
@@ -361,7 +370,7 @@ class Cli
                 puts "Average SAT Scores: #{college.sat_scores_average_overall_2017}"   
                 puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}\n" 
             else
-                puts "🦉\nNot a valid school id.\n"
+                puts "🦉\nNot a valid school id.\n".red
             end
         else
             if college = College.find_by(name: input)
@@ -374,7 +383,7 @@ class Cli
                 puts "Average SAT Scores: #{college.sat_scores_average_overall_2017}"   
                 puts "Average ACT Scores: #{college.act_scores_average_cumulative_2013}\n" 
             else
-                puts "🦉\nNot a valid college name.\n"
+                puts "🦉\nNot a valid college name.\n".red
             end
         end
 
@@ -398,16 +407,16 @@ class Cli
         value = 0
 
         unless value == 8
-            value = PROMPT.select("What do you want to edit?", choices)
+            value = PROMPT.select("What do you want to edit?".green, choices)
 
             if value == 1
                 first_name = PROMPT.ask('Please enter your first name: ', required: true, convert: :string)
                 @student.update(first_name: first_name)
-                puts "Updated!"
+                puts "Updated!".green
             elsif value == 2
                 last_name = PROMPT.ask('Please enter your last name: ', required: true, convert: :string)
                 @student.update(last_name: last_name)
-                puts "Updated!"
+                puts "Updated!".green
             elsif value == 3
                 grade = PROMPT.ask('Please enter your grade (1-12): ') do |q|
                     q.required true
@@ -415,11 +424,11 @@ class Cli
                     q.messages[:range?] = 'Not in expected grade range 1-12'
                 end
                 @student.update(grade: grade)
-                puts "Updated!"
+                puts "Updated!".green
             elsif value == 4
                 high_school = PROMPT.ask('Please enter your high school: ', required: true, convert: :string)
                 @student.update(high_school: high_school)
-                puts "Updated!"
+                puts "Updated!".green
             elsif value == 5
                 grad_year = PROMPT.ask('Please enter your graduation year: ') do |q|
                     q.required true
@@ -427,7 +436,7 @@ class Cli
                     q.messages[:range?] = "Error. Not in the range #{Time.now.year - 30}-#{Time.now.year + 12}."
                 end
                 @student.update(grad_year: grad_year)
-                puts "Updated!"
+                puts "Updated!".green
             elsif value == 6
                 act_score = PROMPT.ask('Please enter your predicted or real ACT score (optional: press enter to continue) ', default: nil) do |q|
                     if @input != nil
@@ -436,7 +445,7 @@ class Cli
                     end
                 end
                 @student.update(act_score: act_score)
-                puts "Updated!"
+                puts "Updated!".green
             elsif value == 7
                 sat_score = PROMPT.ask('Please enter your predicted or real SAT score (optional: press enter to continue) ', default: nil) do |q|
                     if @input != nil
@@ -445,7 +454,7 @@ class Cli
                     end
                 end
                 @student.update(sat_score: sat_score)
-                puts "Updated!"
+                puts "Updated!".green
             end
         end
         
@@ -463,8 +472,8 @@ class Cli
             :center_x => true,
             :center_y => true,
             :resolution => "high"
-        puts "\nThank you for joining me on this journey! Owl miss you 🦉"
-        sleep(2)
+        puts "\nThank you for joining me on this journey! Owl miss you 🦉".green
+        sleep(1)
         clear_screen
         opening_image
         log_in_menu
@@ -478,7 +487,7 @@ class Cli
             {name: 'See info', value: 3},
             {name: 'Logout', value: 4}
           ]
-        @college_menu = PROMPT.select("What do you want to do today?", choices)
+        @college_menu = PROMPT.select("🦉 What do you want to do today?".green, choices)
         college_menu_logic
     end
 
@@ -525,11 +534,13 @@ class Cli
 
     def see_info_college
         clear_screen
-        puts "\nName: #{@college.name}"
+        print "\nName:"
+        puts " #{@college.name}".blue
         puts "ID: #{@college.school_id}"
         puts "City: #{@college.city}"
         puts "State: #{@college.state}"
-        puts "URL: #{@college.url}"
+        print "URL:"
+        puts " #{@college.url}".light_blue
         puts "Admission Rate: #{@college.admission_rate_overall_2017}"
         puts "Average SAT Scores: #{@college.sat_scores_average_overall_2017}"
         puts "Average ACT Scores: #{@college.act_scores_average_cumulative_2013}"
