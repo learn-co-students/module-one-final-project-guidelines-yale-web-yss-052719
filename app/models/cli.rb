@@ -207,7 +207,7 @@ class Cli
             puts "Account Created!"
         elsif tests == 4
             @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, username: username)
-            puts "\n Account Created! But you probably should take the SAT or ACT to get the most out of this app! 🦉\n"
+            puts "\nAccount Created! But you probably should take the SAT or ACT to get the most out of this app! 🦉\n"
         end
 
         # Only creates a Student instance (and a row in the database) once all the info is filled in
@@ -317,31 +317,33 @@ class Cli
 
     def create_an_application
         clear_screen
-        puts "What college do you want to apply to? \n(enter the school id or name)\n"
-        college = PROMPT.ask('Make sure to capitalize and do not forget to include "University" or "College" in the full school name!')
+        puts "What college do you want to apply to? " + "\n(enter the school id or name)\n".bold
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!")
         # do |q|
         #     q.modify :capitalize
         # end
-        if college.numeric?
-            if Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: college).id)
-                puts "Application already created for this school."
-            else
-                if @student.create_application_by_school_id(college)
-                    puts "Application Created!"
+        if input.numeric?
+            if college = College.find_by(school_id: input)
+                if Application.find_by(student_id: @student.id, college_id: college.id)
+                    puts "\nApplication already created for this school."
                 else
-                    puts "Not a valid school id."
-                end 
-            end
-        else
-            if Application.find_by(student_id: @student.id, college_id: College.find_by(name: college).id)
-                puts "Application already created for this school."
-            else
-                if @student.create_application_by_name(college)
-                    puts "Application Created!"
-                else
-                    puts "Not a valid college name."
+                    @student.create_application_by_school_id(input)
+                    puts "\nApplication Created!"
                 end
-            end
+            else
+                puts "Not a valid school id.".bold
+            end 
+        else
+            if college = College.find_by(name: input)
+                if Application.find_by(student_id: @student.id, college_id: college.id)
+                    puts "\nApplication already created for this school."
+                else
+                    @student.create_application_by_name(input)
+                    puts "\nApplication Created!"
+                end
+            else
+                puts "Not a valid school name.".bold
+            end 
         end
         @main_menu = 0
         main_menu_student
@@ -351,7 +353,7 @@ class Cli
         ## add numbering system
         clear_screen
         @student.applications.reload.each do |application|
-            puts "🦉\nCollege: #{application.college.name}"
+            puts "🦉\nCollege: " + "#{application.college.name}".bold
             puts "Designation: #{application.designation}"
             puts "School ID: #{application.college.school_id}"
             puts "City: #{application.college.city}"
@@ -379,22 +381,31 @@ class Cli
 
     def delete_applications
         clear_screen
-        puts "Which college would you like to remove from your applications? \n(Enter college name or school id)\n"
-        input = PROMPT.ask('Make sure to capitalize and do not forget to include "University" or "College" in the full school name!', required: true)
+        puts "Which college would you like to remove from your applications?" + "\n(Enter college name or school id)\n".bold
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!", required: true)
+
         if input.numeric?
-            if app = Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: input).id)
-                ## get no method error if nil is called becaused nil.id doesn't exist
-                app.destroy
-                puts "Succesfully deleted!"
+            if college = College.find_by(school_id: input)
+                if app = Application.find_by(student_id: @student.id, college_id: college.id)
+                    ## get no method error if nil is called becaused nil.id doesn't exist
+                    app.destroy
+                    puts "\nSuccesfully deleted!"
+                else
+                    puts "\nYou don't have an application for this school anyways."
+                end
             else
-                puts "Not a valid school id."
+                puts "Not a valid school id.".bold
             end
         else
-            if app = Application.find_by(student_id: @student.id, college_id: College.find_by(name: input).id)
-                app.destroy
-                puts "Succesfully deleted!"
+            if college = College.find_by(name: input)
+                if app = Application.find_by(student_id: @student.id, college_id: college.id)
+                    app.destroy
+                    puts "\nSuccesfully deleted!"
+                else
+                    puts "\nYou don't have an application for this school anyways."
+                end
             else
-                puts "Not a valid college name."
+                puts "Not a valid college name.".bold
             end
         end
             
@@ -420,8 +431,8 @@ class Cli
     
     def look_up_a_college
         clear_screen
-        puts "Enter a college's name or school id.\n"
-        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!", default: ENV['USER'])
+        puts "Enter a college's name or school id.\n".bold
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!")
         # do |q|
         #     q.modify :capitalize
         # end
