@@ -29,6 +29,8 @@ The user can also return to the application whenever they want with our login fe
 5. run run.rb in terminal "ruby ./bin/run.rb"
 6. Enjoy
 
+6.5 If you ever seed new data, please destroy_all Favorite using (rake console, favorite.destroy_all)
+
 ### Resources
 Gems:
 1. gem "sinatra-activerecord"
