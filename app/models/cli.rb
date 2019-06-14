@@ -101,7 +101,7 @@ class Cli
             opening_image
             log_in_menu
         elsif Student.find_by(username: username) || College.find_by(username: username)
-            puts "Error. Username already taken.".red
+            puts "Error. Username already taken.".red.bold
             create_username
         elsif @s_o_c == 1
             @s_o_c = 0
@@ -111,7 +111,7 @@ class Cli
             @s_o_c = 0
             college_name = PROMPT.ask("Which college are you? (enter the school id or name)".green, required: true)
             @college = College.find_by(name: college_name)
-            @college.username=username
+            @college.update(username: username)
             main_menu_college
         end
         @log_in = 0 
@@ -131,53 +131,90 @@ class Cli
             @college = College.find_by(username: username)
             main_menu_college
         else
-            puts "That is not a valid username. Try again.".red
+            puts "That is not a valid username. Try again.".red.bold
             log_in
         end
     end
 
+    def get_act_score
+        PROMPT.ask('Please enter your predicted or real ACT score (optional: press enter to continue) ') do |q|
+            q.in '1-36'
+            q.messages[:range?] = 'Not a valid ACT score'.bold
+        end
+    end
+
+    def get_sat_score
+        PROMPT.ask('Please enter your predicted or real SAT score (optional: press enter to continue) ') do |q|
+            q.in '400-1600'
+            q.messages[:range?] = 'Not a valid SAT score'.bold
+        end
+    end
+
     def enter_info(username)
-        clear_screen
-        ## Defensive coding for SAT / ACT score
-        first_name = PROMPT.ask('Please enter your first name (required) ', required: true, convert: :string)
+        ## ADD: Defensive Coding -- require different data types for each PROMPT
+        first_name = PROMPT.ask('Please enter your first name (required) ') do |q|
+            q.required true
+            q.validate /^[a-zA-Z]+$/
+            q.modify :capitalize
+        end
 
-        last_name = PROMPT.ask('Please enter your last name (required) ', required: true, convert: :string)
+        last_name = PROMPT.ask('Please enter your last name (required) ') do |q|
+            q.required true
+            q.validate /^[a-zA-Z]+$/
+            q.modify :capitalize
+        end
 
-        high_school = PROMPT.ask('Please enter your high school (required) ', required: true, convert: :string)
+        high_school = PROMPT.ask('Please enter your high school name (required) ') do |q|
+            q.required true
+            q.validate /^[a-zA-Z]+\s?[a-zA-Z]*\s?[a-zA-Z]*\s?[a-zA-Z]*\s?[a-zA-Z]*\s?[a-zA-Z]*$/
+            q.modify :up
+        end
 
         grade = PROMPT.ask('Please enter your grade (1-12) (required) ') do |q|
             q.required true
             q.in '1-12'
-            q.messages[:range?] = 'Not in expected grade range 1-12'.red
+            q.messages[:range?] = 'Not in expected grade range 1-12'.red.bold
         end
 
         grad_year = PROMPT.ask('Please enter your graduation year (required) ') do |q|
             q.required true
             q.in "#{Time.now.year - 30}-#{Time.now.year + 12}"
-            q.messages[:range?] = "Error. Not in the range #{Time.now.year - 30}-#{Time.now.year + 12}."
+            q.messages[:range?] = "Error. Not in the range #{Time.now.year - 30}-#{Time.now.year + 12}.".bold
         end
 
-        act_score = PROMPT.ask('Please enter your predicted or real ACT score (optional: press enter to continue) ') do |q|
-            if @input != nil
-                q.in '1-36'
-                q.messages[:range?] = 'Not a valid ACT score'.red
-            end
-        end
+        choices = [
+            {name: 'ACT', value: 1},
+            {name: 'SAT', value: 2},
+            {name: 'Both', value: 3},
+            {name: 'Neither', value: 4}
+          ]
+        puts "\n"
+        tests = PROMPT.select("Have you taken the ACT and/or SAT? ", choices)
 
-        sat_score = PROMPT.ask('Please enter your predicted or real SAT score (optional: press enter to continue) ', default: nil) do |q|
-            if @input != nil
-                q.in '400-1600'
-                q.messages[:range?] = 'Not a valid SAT score'.red
-            end
+        if tests == 1
+            act_score = get_act_score
+            @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, username: username)
+            puts "Account Created!"
+        elsif tests == 2
+            sat_score = get_sat_score
+            @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, sat_score: sat_score, username: username)
+            puts "Account Created!"
+        elsif tests == 3
+            act_score = get_act_score
+            sat_score = get_sat_score
+            @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, sat_score: sat_score, username: username)
+            puts "Account Created!"
+        elsif tests == 4
+            @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, username: username)
+            puts "\nAccount Created! But you probably should take the SAT or ACT to get the most out of this app! 🦉\n"
         end
-
-        @student = Student.create(first_name: first_name, last_name: last_name, high_school: high_school, grade: grade, grad_year: grad_year, act_score: act_score, sat_score: sat_score, username: username)
 
         # Only creates a Student instance (and a row in the database) once all the info is filled in
     end
 
     def main_menu_student
         clear_screen
+        ## does this ^ create issues for see_info
         choices = [
             {name: 'Get College Recommendations', value: 1},
             {name: 'Create an Application', value: 2},
@@ -205,50 +242,74 @@ class Cli
         if input == 1
             if @student.act_score
                 colleges = @student.find_safety_colleges_by_act_score
-                colleges.each do |college|
-                    puts "\n#{college.name}".bold
-                    puts "School ID: " + "#{college.school_id}".bold
+                if colleges.empty?
+                    puts "\nNo safety schools found :( 🦉"
+                else
+                    colleges.each do |college|
+                        puts "\n#{college.name}".bold
+                        puts "School ID: " + "#{college.school_id}".bold
+                    end
                 end
             elsif @student.sat_score
                 colleges = @student.find_safety_colleges_by_sat_score
-                colleges.each do |college|
-                    puts "\n#{college.name}".bold
-                    puts "School ID: " + "#{college.school_id}".bold
+                if colleges.empty?
+                    puts "\nNo safety schools found :( 🦉"
+                else
+                    colleges.each do |college|
+                        puts "\n#{college.name}".bold
+                        puts "School ID: " + "#{college.school_id}".bold
+                    end
                 end
             else
-                puts "Please enter your ACT or SAT score before using this feature."
+                puts "\nPlease enter your ACT or SAT score before using this feature.".bold
             end
         elsif input == 2
             if @student.act_score
                 colleges = @student.find_target_colleges_by_act_score
-                colleges.each do |college|
-                    puts "\n#{college.name}".bold
-                    puts "School ID: " + "#{college.school_id}".bold
+                if colleges.empty?
+                    puts "\nNo target schools found :( 🦉"
+                else
+                    colleges.each do |college|
+                        puts "\n#{college.name}".bold
+                        puts "School ID: " + "#{college.school_id}".bold
+                    end
                 end
             elsif @student.sat_score
                 colleges = @student.find_target_colleges_by_sat_score
-                colleges.each do |college|
-                    puts "\n#{college.name}".bold
-                    puts "School ID: " + "#{college.school_id}".bold
+                if colleges.empty?
+                    puts "\nNo target schools found :( 🦉"
+                else
+                    colleges.each do |college|
+                        puts "\n#{college.name}".bold
+                        puts "School ID: " + "#{college.school_id}".bold
+                    end
                 end
             else
-                puts "Please enter your ACT or SAT score before using this feature."
+                puts "\nPlease enter your ACT or SAT score before using this feature.".bold
             end
         elsif input == 3
             if @student.act_score
                 colleges = @student.find_reach_colleges_by_act_score
-                colleges.each do |college|
-                    puts "\n#{college.name}".bold
-                    puts "School ID: " + "#{college.school_id}".bold
+                if colleges.empty?
+                    puts "\nNo reach schools found :) 🦉"
+                else
+                    colleges.each do |college|
+                        puts "\n#{college.name}".bold
+                        puts "School ID: " + "#{college.school_id}".bold
+                    end
                 end
             elsif @student.sat_score
                 colleges = @student.find_reach_colleges_by_sat_score
-                colleges.each do |college|
-                    puts "\n#{college.name}".bold
-                    puts "School ID: " + "#{college.school_id}".bold
+                if colleges.empty?
+                    puts "\nNo reach schools found :) 🦉"
+                else
+                    colleges.each do |college|
+                        puts "\n#{college.name}".bold
+                        puts "School ID: " + "#{college.school_id}".bold
+                    end
                 end
             else
-                puts "Please enter your ACT or SAT score before using this feature."
+                puts "\nPlease enter your ACT or SAT score before using this feature.".bold
             end
         end
         @main_menu = 0
@@ -257,6 +318,7 @@ class Cli
 
     def create_an_application
         clear_screen
+<<<<<<< HEAD
         puts "What college do you want to apply to? \n(enter the school id or name)\n".green
         college = PROMPT.ask('Do not forget to include "University" or "College" in the full school name')
         if college.numeric?
@@ -265,12 +327,40 @@ class Cli
             else
                 puts "Not a valid school id.".red
             end
-        else
-            if @student.create_application_by_name(college)
-                puts "Application Created!"
+=======
+        puts "What college do you want to apply to? " + "\n(enter the school id or name)\n".bold
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!")
+        # do |q|
+        #     q.modify :capitalize
+        # end
+        if input.numeric?
+            if college = College.find_by(school_id: input)
+                if Application.find_by(student_id: @student.id, college_id: college.id)
+                    puts "\nApplication already created for this school."
+                else
+                    @student.create_application_by_school_id(input)
+                    puts "\nApplication Created!"
+                end
             else
+                puts "Not a valid school id.".bold
+            end 
+>>>>>>> max
+        else
+            if college = College.find_by(name: input)
+                if Application.find_by(student_id: @student.id, college_id: college.id)
+                    puts "\nApplication already created for this school."
+                else
+                    @student.create_application_by_name(input)
+                    puts "\nApplication Created!"
+                end
+            else
+<<<<<<< HEAD
                 puts "Not a valid college name.".red
             end
+=======
+                puts "Not a valid school name.".bold
+            end 
+>>>>>>> max
         end
         @main_menu = 0
         main_menu_student
@@ -280,8 +370,12 @@ class Cli
         ## add numbering system
         clear_screen
         @student.applications.reload.each do |application|
+<<<<<<< HEAD
             print "\nCollege:"
             puts " #{application.college.name}".blue
+=======
+            puts "🦉\nCollege: " + "#{application.college.name}".bold
+>>>>>>> max
             puts "Designation: #{application.designation}"
             puts "School ID: #{application.college.school_id}"
             puts "City: #{application.college.city}"
@@ -310,6 +404,7 @@ class Cli
 
     def delete_applications
         clear_screen
+<<<<<<< HEAD
         print "🦉 Which college would you like to remove from your applications? \n(Enter college name or school id)\n".green
         puts 'Do not forget to include "University" or "College" in the full school name'.green
         input = PROMPT.ask("Type Exit if you want to return to the main menu.", required: true)
@@ -330,6 +425,33 @@ class Cli
                 puts "🦉 Succesfully deleted!".green
             else
                 puts "🦉 Not a valid college name.".red
+=======
+        puts "Which college would you like to remove from your applications?" + "\n(Enter college name or school id)\n".bold
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!", required: true)
+
+        if input.numeric?
+            if college = College.find_by(school_id: input)
+                if app = Application.find_by(student_id: @student.id, college_id: college.id)
+                    ## get no method error if nil is called becaused nil.id doesn't exist
+                    app.destroy
+                    puts "\nSuccesfully deleted!"
+                else
+                    puts "\nYou don't have an application for this school anyways."
+                end
+            else
+                puts "Not a valid school id.".bold
+            end
+        else
+            if college = College.find_by(name: input)
+                if app = Application.find_by(student_id: @student.id, college_id: college.id)
+                    app.destroy
+                    puts "\nSuccesfully deleted!"
+                else
+                    puts "\nYou don't have an application for this school anyways."
+                end
+            else
+                puts "Not a valid college name.".bold
+>>>>>>> max
             end
         end
             
@@ -356,8 +478,16 @@ class Cli
     
     def look_up_a_college
         clear_screen
+<<<<<<< HEAD
         puts "Enter a college's name or school id.\n".green
         input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER']).green
+=======
+        puts "Enter a college's name or school id.\n".bold
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!")
+        # do |q|
+        #     q.modify :capitalize
+        # end
+>>>>>>> max
 
         if input.numeric?
             if college = College.find_by(school_id: input)
@@ -410,49 +540,51 @@ class Cli
             value = PROMPT.select("What do you want to edit?".green, choices)
 
             if value == 1
-                first_name = PROMPT.ask('Please enter your first name: ', required: true, convert: :string)
+                first_name = PROMPT.ask('Please enter your first name: ') do |q|
+                    q.required true
+                    q.validate /^[a-zA-Z]+$/
+                    q.modify :capitalize
+                end
                 @student.update(first_name: first_name)
                 puts "Updated!".green
             elsif value == 2
-                last_name = PROMPT.ask('Please enter your last name: ', required: true, convert: :string)
+                last_name = PROMPT.ask('Please enter your last name: ') do |q|
+                    q.required true
+                    q.validate /^[a-zA-Z]+$/
+                    q.modify :capitalize
+                end
                 @student.update(last_name: last_name)
                 puts "Updated!".green
             elsif value == 3
                 grade = PROMPT.ask('Please enter your grade (1-12): ') do |q|
                     q.required true
                     q.in '1-12'
-                    q.messages[:range?] = 'Not in expected grade range 1-12'
+                    q.messages[:range?] = 'Not in expected grade range 1-12'.bold
                 end
                 @student.update(grade: grade)
                 puts "Updated!".green
             elsif value == 4
-                high_school = PROMPT.ask('Please enter your high school: ', required: true, convert: :string)
+                high_school = PROMPT.ask('Please enter your high school: ') do |q|
+                    q.required true
+                    q.validate /^[a-zA-Z]+\s?[a-zA-Z]*\s?[a-zA-Z]*\s?[a-zA-Z]*\s?[a-zA-Z]*\s?[a-zA-Z]*$/
+                    q.modify :up
+                end
                 @student.update(high_school: high_school)
                 puts "Updated!".green
             elsif value == 5
                 grad_year = PROMPT.ask('Please enter your graduation year: ') do |q|
                     q.required true
                     q.in "#{Time.now.year - 30}-#{Time.now.year + 12}"
-                    q.messages[:range?] = "Error. Not in the range #{Time.now.year - 30}-#{Time.now.year + 12}."
+                    q.messages[:range?] = "Error. Not in the range #{Time.now.year - 30}-#{Time.now.year + 12}.".bold
                 end
                 @student.update(grad_year: grad_year)
                 puts "Updated!".green
             elsif value == 6
-                act_score = PROMPT.ask('Please enter your predicted or real ACT score (optional: press enter to continue) ', default: nil) do |q|
-                    if @input != nil
-                        q.in '1-36'
-                        q.messages[:range?] = 'Not a valid ACT score'
-                    end
-                end
+                act_score = get_act_score
                 @student.update(act_score: act_score)
                 puts "Updated!".green
             elsif value == 7
-                sat_score = PROMPT.ask('Please enter your predicted or real SAT score (optional: press enter to continue) ', default: nil) do |q|
-                    if @input != nil
-                        q.in '400-1600'
-                        q.messages[:range?] = 'Not a valid SAT score'
-                    end
-                end
+                sat_score = get_sat_score
                 @student.update(sat_score: sat_score)
                 puts "Updated!".green
             end
@@ -480,20 +612,28 @@ class Cli
     end
 
     def main_menu_college
-        clear_screen
         choices = [
             {name: 'Look at students interested in you?', value: 1},
             {name: 'Look up students by ___?', value: 2},
             {name: 'See info', value: 3},
             {name: 'Logout', value: 4}
           ]
+<<<<<<< HEAD
         @college_menu = PROMPT.select("🦉 What do you want to do today?".green, choices)
+=======
+        @college_menu = PROMPT.select("\nWhat do you want to do today?", choices)
+>>>>>>> max
         college_menu_logic
     end
 
     def look_up_students
         clear_screen
-        @college.students
+        @college.students.each do |student|
+            puts "\n#{student.first_name} #{student.last_name}".bold
+            puts "#{student.high_school}, #{student.grad_year}"
+            puts "ACT: #{student.act_score}"
+            puts "SAT: #{student.sat_score}"
+        end
         @college_menu = 0
         main_menu_college
     end
@@ -504,30 +644,76 @@ class Cli
         choices = [
             {name: 'Look up students by grade?', value: 1},
             {name: 'Look up students by school?', value: 2},
-            {name: 'Look up students by ACT score?', value: 3},
-            {name: 'Look up students by SAT score?', value: 4}
+            {name: 'Look up students by graduation year?', value: 3}
+            # {name: 'Look up students by ACT score?', value: 3},
+            # {name: 'Look up students by SAT score?', value: 4}
           ]
         @students_by = PROMPT.select("Look up students by ___?", choices)
         if @students_by == 1
-            grade = PROMPT.ask('Which grade?', required: true)
-            Student.find_by(grade: grade)
+            grade = PROMPT.ask('Which grade? (1-12)') do |q|
+                q.required true
+                q.in '1-12'
+                q.messages[:range?] = 'Not in expected grade range 1-12'
+            end
+            if @college.students.where(grade: grade).empty?
+                puts "\nNo students in this grade has applied to your college."
+            else
+                @college.students.where(grade: grade).each do |student|
+                    puts "\n#{student.first_name} #{student.last_name}".bold
+                    puts "#{student.high_school}, #{student.grad_year}"
+                    puts "ACT: #{student.act_score}"
+                    puts "SAT: #{student.sat_score}"
+                end
+            end
             @students_by = 0
             main_menu_college
         elsif @students_by == 2
-            school = PROMPT.ask('Which school?', required: true)
-            Student.find_by(high_school: school)
+            school = PROMPT.ask('Which school?') do |q|
+                q.required true
+                q.modify :up
+            end
+            if @college.students.where(high_school: school).empty?
+                puts "\nNo students in this high school has applied to your college."
+            else
+                @college.students.where(high_school: school).each do |student|
+                    puts "\n#{student.first_name} #{student.last_name}".bold
+                    puts "#{student.high_school}, #{student.grad_year}"
+                    puts "ACT: #{student.act_score}"
+                    puts "SAT: #{student.sat_score}"
+                end
+            end
             @students_by = 0
             main_menu_college
         elsif @students_by == 3
-            act_score = PROMPT.ask('What range of scores?', required: true)
-            Student.find_by(act_score: act_score)
+            grad_year = PROMPT.ask('Which graduation year?') do |q|
+                q.required true
+            end
+            if @college.students.where(grad_year: grad_year).empty?
+                puts "\nNo students in this graduation year has applied to your college."
+            else
+                @college.students.where(grad_year: grad_year).each do |student|
+                    puts "\n#{student.first_name} #{student.last_name}".bold
+                    puts "#{student.high_school}, #{student.grad_year}"
+                    puts "ACT: #{student.act_score}"
+                    puts "SAT: #{student.sat_score}"
+                end
+            end
             @students_by = 0
             main_menu_college
-        elsif @students_by == 4
-            sat_score = PROMPT.ask('What range of scores?', required: true)
-            Student.find_by(sat_score: sat_score)
-            @students_by = 0
-            main_menu_college
+        # elsif @students_by == 3
+        #     act_score_range = PROMPT.ask('What range of scores?', required: true, convert: :range)
+        #     for i in act_score_range
+        #         @college.students.where(act_score: i)
+        #     end
+        #     @students_by = 0
+        #     main_menu_college
+        # elsif @students_by == 4
+        #     sat_score_range = PROMPT.ask('What range of scores?', required: true, convert: :range)
+        #     for i in sat_score_range
+        #         @college.students.where(sat_score: i)
+        #     end
+        #     @students_by = 0
+        #     main_menu_college
         end
 
     end
