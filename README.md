@@ -1,7 +1,7 @@
-# Park'R
+# PARKR
 
-Welcome fellow environmentalists. You have reached the development website for Park'R, the premier applicationin the exciting field of Green Technology. 
-Did you ever have an insatiable urge to explore the hundreds of national parks in the US? With Park'R, you can satiate that urge with a simple and slick CLI interface.
+Welcome fellow environmentalists. You have reached the development website for PARKR, the premier application in the exciting field of Green Technology. 
+Did you ever have an insatiable urge to explore the hundreds of national parks in the US? With PARKR, you can satiate that urge with a simple and slick CLI interface.
 
 ## Project Description
 
@@ -18,6 +18,7 @@ Once the user inputs their name and home state, they will reach a menu screen wh
 4. Modify your saved favorites list
 5. Return all existing written reviews
 
+The user can also return to the application whenever they want with our login feature, which saves their favorites and reviews.
 
 ## Instructions
 
@@ -28,10 +29,23 @@ Once the user inputs their name and home state, they will reach a menu screen wh
 5. run run.rb in terminal "ruby ./bin/run.rb"
 6. Enjoy
 
-### Gems
-1. 
+### Resources
+Gems:
+1. gem "sinatra-activerecord"
+2. gem "sqlite3", '~>1.4.1'
+3. gem "require_all"
+4. gem "httparty"
+5. gem 'tty-prompt'
+6. gem 'rmagick', '~>2.16.0'
+7. gem 'catpix'
 
+API: National Park Service
+https://www.nps.gov/subjects/developer/api-documentation.htm#/
+
+
+## Contributor's Guide
+Everything in this repo is avialiable, as long as credit is given to the authors.
 
 ## Licensing
-  Park'R can be used by the conditions by the MIT License.
+  PARKR can be used by the conditions by the MIT License.
   **Resource:** [MIT License](https://opensource.org/licenses/MIT)
