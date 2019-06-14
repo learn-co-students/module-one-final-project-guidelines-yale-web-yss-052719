@@ -1,5 +1,7 @@
-require_relative '../config/environment'
+require_relative '../config/environment.rb'
 
 
+Cli.new
 
-puts "HELLO WORLD"
+# binding.pry
+# 0
