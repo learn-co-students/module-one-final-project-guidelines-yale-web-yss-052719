@@ -10,8 +10,18 @@ class List < ActiveRecord::Base
     #     # list_book.save
     # end
 
-    def book_hash
-       
+    def hash
+        {
+            self.name => self.books.map {|book| book.book_title }
+        }
     end
 
+    def remove_books_from_list
+        prompt = TTY::Prompt.new
+        choices = self.books.map { |book| book.book_title }
+        prompt.multi_select("Remove books?:", choices).each do |name|
+            self.books.where(book_title: name).delete_all
+            puts "Your book #{name} was successfully removed."
+        end
+    end
 end
