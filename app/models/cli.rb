@@ -68,7 +68,7 @@ class Cli
             :limit_y => 0,
             :center_x => true,
             :center_y => true,
-            :resolution => "low"
+            :resolution => "high"
     end
 
     def log_in_menu
