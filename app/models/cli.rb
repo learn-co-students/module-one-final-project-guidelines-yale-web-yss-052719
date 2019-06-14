@@ -137,18 +137,25 @@ class Cli
         end
     end
 
-    # prompt.ask('How spicy on scale (1-5)? ') do |q|
-    #     q.in '1-5'
-    #     q.messages[:range?] = '%{value} out of expected range #{in}'
-    #   end
-
     def enter_info(username)
         ## ADD: Defensive Coding -- require different data types for each PROMPT
-        first_name = PROMPT.ask('Please enter your first name (required) ', required: true, convert: :string)
+        first_name = PROMPT.ask('Please enter your first name (required) ') do |q|
+            q.required true
+            q.validate /^[a-zA-Z]+$/
+            q.modify :capitalize
+        end
 
-        last_name = PROMPT.ask('Please enter your last name (required) ', required: true, convert: :string)
+        last_name = PROMPT.ask('Please enter your last name (required) ') do |q|
+            q.required true
+            q.validate /^[a-zA-Z]+$/
+            q.modify :capitalize
+        end
 
-        high_school = PROMPT.ask('Please enter your high school (required) ', required: true, convert: :string)
+        high_school = PROMPT.ask('Please enter your high school (required) ') do |q|
+            q.required true
+            q.validate /^[a-zA-Z]+\s*$/
+            q.modify :capitalize
+        end
 
         grade = PROMPT.ask('Please enter your grade (1-12) (required) ') do |q|
             q.required true
@@ -263,17 +270,28 @@ class Cli
         clear_screen
         puts "What college do you want to apply to? \n(enter the school id or name)\n"
         college = PROMPT.ask('Do not forget to include "University" or "College" in the full school name')
+        # do |q|
+        #     q.modify :capitalize
+        # end
         if college.numeric?
-            if @student.create_application_by_school_id(college)
-                puts "Application Created!"
+            if Application.find_by(college_id: College.find_by(school_id: college).id)
+                puts "Application already created for this school."
             else
-                puts "Not a valid school id."
+                if @student.create_application_by_school_id(college)
+                    puts "Application Created!"
+                else
+                    puts "Not a valid school id."
+                end 
             end
         else
-            if @student.create_application_by_name(college)
-                puts "Application Created!"
+            if Application.find_by(college_id: College.find_by(name: college).id)
+                puts "Application already created for this school."
             else
-                puts "Not a valid college name."
+                if @student.create_application_by_name(college)
+                    puts "Application Created!"
+                else
+                    puts "Not a valid college name."
+                end
             end
         end
         @main_menu = 0
@@ -354,7 +372,9 @@ class Cli
     def look_up_a_college
         clear_screen
         puts "Enter a college's name or school id.\n"
-        input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER'])
+        input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER']) do |q|
+            q.modify :capitalize
+        end
 
         if input.numeric?
             if college = College.find_by(school_id: input)
@@ -407,11 +427,19 @@ class Cli
             value = PROMPT.select("What do you want to edit?", choices)
 
             if value == 1
-                first_name = PROMPT.ask('Please enter your first name: ', required: true, convert: :string)
+                first_name = PROMPT.ask('Please enter your first name: ') do |q|
+                    q.required true
+                    q.validate /^[a-zA-Z]+$/
+                    q.modify :capitalize
+                end
                 @student.update(first_name: first_name)
                 puts "Updated!"
             elsif value == 2
-                last_name = PROMPT.ask('Please enter your last name: ', required: true, convert: :string)
+                last_name = PROMPT.ask('Please enter your last name: ') do |q|
+                    q.required true
+                    q.validate /^[a-zA-Z]+$/
+                    q.modify :capitalize
+                end
                 @student.update(last_name: last_name)
                 puts "Updated!"
             elsif value == 3
@@ -423,7 +451,11 @@ class Cli
                 @student.update(grade: grade)
                 puts "Updated!"
             elsif value == 4
-                high_school = PROMPT.ask('Please enter your high school: ', required: true, convert: :string)
+                high_school = PROMPT.ask('Please enter your high school: ') do |q|
+                    q.required true
+                    q.validate /^[a-zA-Z]+$/
+                    q.modify :capitalize
+                end
                 @student.update(high_school: high_school)
                 puts "Updated!"
             elsif value == 5
