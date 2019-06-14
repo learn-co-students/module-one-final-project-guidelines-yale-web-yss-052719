@@ -7,9 +7,7 @@ class CLI
     def initialize
         clean_screen
         starting_program
-        menu 
-
-        
+        menu    
     end
  
     #Clear command line window
@@ -64,16 +62,41 @@ class CLI
         puts "🌲Welcome to Parkr, the premier environmentalist application.🌲"
         @prompt = TTY::Prompt.new
 
-        #Create user
-        @user_name = @prompt.ask('What is your name?', default: ENV['USER'])
-        @users = User.create(:name => @user_name, :state => nil)
-        @users.save
+        login
+        menu
+    end
 
-        #Greet user
-        puts "🤠 Hello, #{@user_name}!"
-        @user_state = statename(@prompt.ask('Which state are you from?', default: 'CT'))
-        @users.update(:state => @user_state)
-        @users.save
+    def login
+        num = @prompt.select("Would you like to login or create a new account?") do |menu|
+            menu.default 1
+
+            menu.choice 'I would like to login to my existing account', 1
+            menu.choice 'I would like to create a new account', 2
+        end
+
+        case num
+        when 1
+            @user_name = @prompt.ask('Please enter your username:', default: ENV['USER'])
+            if User.exists?(:name => @user_name)
+                @users = User.find_by :name => @user_name
+                @prompt.ok("Weclome back, #{@user_name}!")
+            else
+                puts "Sorry, we don't have that username..."
+                login
+            end
+        when 2 
+          #Create user
+            @user_name = @prompt.ask('What is your name?', default: ENV['USER'])
+            while User.exists?(:name => @user_name)
+                @user_name = @prompt.ask('Sorry, that name is already taken!', default: ENV['USER'])
+            end
+            @users = User.create(:name => @user_name, :state => nil)
+
+            #Greet user
+            puts "🤠 Hello, #{@user_name}!"
+            @user_state = statename(@prompt.ask('Which state are you from?', default: 'CT'))
+            @users.update(:state => @user_state)
+        end
     end
     
     #Main menu
