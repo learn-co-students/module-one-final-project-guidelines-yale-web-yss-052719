@@ -318,7 +318,7 @@ class Cli
     def create_an_application
         clear_screen
         puts "What college do you want to apply to? \n(enter the school id or name)\n"
-        college = PROMPT.ask('Do not forget to include "University" or "College" in the full school name')
+        college = PROMPT.ask('Make sure to capitalize and do not forget to include "University" or "College" in the full school name!')
         # do |q|
         #     q.modify :capitalize
         # end
@@ -380,7 +380,7 @@ class Cli
     def delete_applications
         clear_screen
         puts "Which college would you like to remove from your applications? \n(Enter college name or school id)\n"
-        input = PROMPT.ask('Do not forget to include "University" or "College" in the full school name', required: true)
+        input = PROMPT.ask('Make sure to capitalize and do not forget to include "University" or "College" in the full school name!', required: true)
         if input.numeric?
             if app = Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: input).id)
                 ## get no method error if nil is called becaused nil.id doesn't exist
@@ -421,7 +421,7 @@ class Cli
     def look_up_a_college
         clear_screen
         puts "Enter a college's name or school id.\n"
-        input = PROMPT.ask("Do not forget to include 'University' or 'College' in the full school name", default: ENV['USER'])
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!", default: ENV['USER'])
         # do |q|
         #     q.modify :capitalize
         # end
