@@ -151,9 +151,9 @@ class Cli
             q.modify :capitalize
         end
 
-        high_school = PROMPT.ask('Please enter your high school (required) ') do |q|
+        high_school = PROMPT.ask('Please enter your high school name (required) ') do |q|
             q.required true
-            q.validate /^[a-zA-Z]+\s*$/
+            # q.validate /^[a-zA-Z]+\s*$/
             q.modify :capitalize
         end
 
@@ -274,7 +274,7 @@ class Cli
         #     q.modify :capitalize
         # end
         if college.numeric?
-            if Application.find_by(college_id: College.find_by(school_id: college).id)
+            if Application.find_by(student_id: @student.id, college_id: College.find_by(school_id: college).id)
                 puts "Application already created for this school."
             else
                 if @student.create_application_by_school_id(college)
@@ -284,7 +284,7 @@ class Cli
                 end 
             end
         else
-            if Application.find_by(college_id: College.find_by(name: college).id)
+            if Application.find_by(student_id: @student.id, college_id: College.find_by(name: college).id)
                 puts "Application already created for this school."
             else
                 if @student.create_application_by_name(college)
