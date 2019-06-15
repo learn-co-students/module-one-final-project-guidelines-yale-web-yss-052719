@@ -213,6 +213,10 @@ class Cli
     end
 
     def main_menu_student
+<<<<<<< HEAD
+=======
+        ## does this ^ create issues for see_info
+>>>>>>> cb3f03009a356128fc18976b5dd0ace44334e5e7
         choices = [
             {name: 'Get College Recommendations', value: 1},
             {name: 'Create an Application', value: 2},
@@ -222,7 +226,7 @@ class Cli
             {name: 'Update Info', value: 5},
             {name: 'Logout', value: 6}
           ]
-        @main_menu = PROMPT.select("🦉 What do you want to do today?".green, choices)
+        @main_menu = PROMPT.select("\n🦉 What do you want to do today?".green, choices)
         main_menu_logic
     end
 
@@ -352,7 +356,11 @@ class Cli
         ## add numbering system
         clear_screen
         @student.applications.reload.each do |application|
+<<<<<<< HEAD
             puts "🦉\nCollege: " + "#{application.college.name}".bold
+=======
+            puts "\nCollege: " + "#{application.college.name}".bold
+>>>>>>> cb3f03009a356128fc18976b5dd0ace44334e5e7
             puts "Designation: #{application.designation}"
             puts "School ID: #{application.college.school_id}"
             puts "City: #{application.college.city}"
@@ -393,7 +401,11 @@ class Cli
                     puts "🦉 \nYou don't have an application for this school anyways.".red
                 end
             else
+<<<<<<< HEAD
                 puts "🦉 Not a valid school id.".red.bold
+=======
+                puts "Not a valid school id.".red.bold
+>>>>>>> cb3f03009a356128fc18976b5dd0ace44334e5e7
             end
         else
             if college = College.find_by(name: input)
@@ -432,7 +444,11 @@ class Cli
     def look_up_a_college
         clear_screen
         puts "Enter a college's name or school id.\n".green.bold
+<<<<<<< HEAD
         input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!")
+=======
+        input = PROMPT.ask("Make sure to capitalize and do not forget to include 'University' or 'College' in the full school name!").green
+>>>>>>> cb3f03009a356128fc18976b5dd0ace44334e5e7
 
         if input.numeric?
             if college = College.find_by(school_id: input)
